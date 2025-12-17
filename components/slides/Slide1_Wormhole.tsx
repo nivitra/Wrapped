@@ -124,7 +124,7 @@ export default function Slide1_Wormhole({ onComplete }: { onComplete: () => void
 
 // --- SUB-COMPONENT: Tunnel Item ---
 function TunnelItem({ item, time, speed }: { item: any, time: any, speed: any }) {
-    const z = useTransform(time, (t) => {
+    const z = useTransform(time, (t: number) => {
         // Loop z from 1000 (far) to -500 (behind camera)
         const currentSpeed = speed.get();
         const distance = (t * (currentSpeed / 1000) + item.delay * 1000) % 2000;
