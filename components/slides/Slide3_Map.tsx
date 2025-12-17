@@ -32,23 +32,26 @@ export default function Slide3_Map({ onComplete }: { onComplete: () => void }) {
         <div className="relative w-full h-full overflow-hidden bg-[#1a1a1a] flex flex-col items-center justify-center">
 
             {/* --- MAP CONTAINER --- */}
-            <div className="relative w-[90vw] h-[70vh] md:w-[60vh] md:h-[80vh]">
-                {/* Base Map */}
-                <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full opacity-20 pointer-events-none">
-                    {/* Using a very rough approximation of India's shape for context */}
-                    <path
-                        d="M35 5 L55 5 L65 15 L75 35 L65 55 L55 90 L45 98 L35 90 L25 55 L15 35 L25 15 Z"
-                        fill="none"
-                        stroke="#3a3a3a"
-                        strokeWidth="0.5"
-                        strokeLinejoin="round"
+            <div className="relative w-full h-full md:w-[60vh] md:h-[80vh] flex items-center justify-center">
+                {/* Base Map Image */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-40">
+                    <img
+                        src="/india-map-dark.png"
+                        alt="Map of India"
+                        className="h-[80%] w-auto object-contain max-w-none"
                     />
-                </svg>
+                </div>
 
-                {/* City Nodes */}
-                {CITIES.map((city, i) => (
-                    <CityNode key={city.name} city={city} index={i} />
-                ))}
+                {/* City Nodes Container - Calibrated to match the image aspect ratio roughly */}
+                <div className="relative w-[80vw] h-[80vw] md:w-[50vh] md:h-[50vh] mt-12">
+                    {/* Note: The image is 9:16 but the map inside is roughly square-ish/tall. 
+                        We need a container that overlays the map part of the image. 
+                        Let's assume the map is centered. 
+                    */}
+                    {CITIES.map((city, i) => (
+                        <CityNode key={city.name} city={city} index={i} />
+                    ))}
+                </div>
             </div>
 
             {/* --- LEGEND (Top Right) --- */}

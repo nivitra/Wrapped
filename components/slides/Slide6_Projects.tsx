@@ -1,74 +1,115 @@
 "use client";
 
-import { motion } from 'framer-motion';
+import { motion, useTime, useTransform } from 'framer-motion';
+import { useState, useEffect, useMemo } from 'react';
 
 // --- CONFIGURATION ---
-// Placeholder colors for screenshots
-const PROJECTS = [
-    "bg-blue-900", "bg-indigo-900", "bg-purple-900",
-    "bg-pink-900", "bg-rose-900", "bg-red-900"
+const BUZZWORDS = [
+    "RAG Pipeline", "Autonomous Agent", "DeFi Bot", "Vision AI", "Legal LLM",
+    "Voice Clone", "Code Gen", "Sales Auto", "HR Screener", "Edu-Tutor",
+    "Agri-Drone", "Space-Sim", "Crypto-Arb", "Med-Diagnosis", "Content-Engine",
+    "Fraud Detect", "Traffic Opt", "Supply Chain", "Personal Stylist", "Music Gen",
+    "Video Synth", "3D Asset Gen", "Game NPC", "Chatbot", "Search Engine",
+    "Recommendation", "Sentiment Analysis", "Predictive Maint", "Robotics", "IoT Swarm",
+    "Smart Home", "Energy Grid", "Climate Model", "Bio-Folding", "Drug Discovery",
+    "Material Science", "Quantum Sim", "Cyber Defense", "Phishing Detect", "Deepfake Spotter"
 ];
 
 export default function Slide6_Projects({ onComplete }: { onComplete: () => void }) {
+    const [phase, setPhase] = useState<'flood' | 'impact'>('flood');
+
+    useEffect(() => {
+        const timer = setTimeout(() => setPhase('impact'), 2500); // Flood for 2.5s
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
         <div className="relative w-full h-full overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center">
 
-            {/* --- TETRIS GRID --- */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-1 w-full max-w-4xl px-4">
-                {PROJECTS.map((bg, i) => (
+            {/* --- FLOOD BACKGROUND --- */}
+            <div className={`absolute inset-0 overflow-hidden flex flex-col justify-center transition-opacity duration-500 ${phase === 'impact' ? 'opacity-20 blur-sm' : 'opacity-100'}`}>
+                {/* Multiple scrolling rows with different speeds/directions */}
+                <FloodRow words={BUZZWORDS.slice(0, 10)} speed={20} direction={1} />
+                <FloodRow words={BUZZWORDS.slice(10, 20)} speed={30} direction={-1} />
+                <FloodRow words={BUZZWORDS.slice(20, 30)} speed={25} direction={1} />
+                <FloodRow words={BUZZWORDS.slice(30, 40)} speed={35} direction={-1} />
+                <FloodRow words={BUZZWORDS.slice(0, 10)} speed={15} direction={1} />
+                <FloodRow words={BUZZWORDS.slice(10, 20)} speed={40} direction={-1} />
+                <FloodRow words={BUZZWORDS.slice(20, 30)} speed={22} direction={1} />
+            </div>
+
+            {/* --- IMPACT REVEAL --- */}
+            {phase === 'impact' && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+                    {/* Shockwave Flash */}
                     <motion.div
-                        key={i}
-                        initial={{ y: -1000, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{
-                            type: "spring",
-                            damping: 15,
-                            stiffness: 50,
-                            delay: i * 0.1 // Staggered fall
-                        }}
-                        className={`aspect-video ${bg} rounded-sm border border-[#2a2a2a] relative group cursor-pointer overflow-hidden`}
+                        initial={{ opacity: 1 }}
+                        animate={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="absolute inset-0 bg-white mix-blend-overlay"
+                    />
+
+                    <motion.h1
+                        initial={{ scale: 5, opacity: 0, filter: 'blur(20px)' }}
+                        animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        className="text-[20vw] md:text-[15rem] font-black text-white tracking-tighter leading-none mix-blend-difference"
+                        style={{ fontFamily: 'var(--font-inter)' }}
                     >
-                        {/* Hover Effect */}
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <span className="text-white text-xs font-mono">VIEW DEPLOYMENT</span>
-                        </div>
+                        1,340+
+                    </motion.h1>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="mt-4 md:mt-8"
+                    >
+                        <span
+                            className="text-2xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500"
+                            style={{ fontFamily: 'var(--font-playfair)' }}
+                        >
+                            Projects Shipped
+                        </span>
                     </motion.div>
-                ))}
-            </div>
 
-            {/* --- HERO NUMBER OVERLAY --- */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none mix-blend-screen">
-                <motion.h1
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 0.6, scale: 1 }}
-                    transition={{ delay: 1, duration: 1 }}
-                    className="text-[20vw] md:text-[12rem] font-black text-white tracking-tighter"
-                    style={{ fontFamily: 'var(--font-inter)' }}
-                >
-                    1,340+
-                </motion.h1>
-            </div>
-
-            {/* --- COMPLETION BADGE (Top Right) --- */}
-            <motion.div
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 1.5, type: "spring", damping: 12 }}
-                className="absolute top-24 right-6 md:top-12 md:right-12 bg-[rgba(74,122,255,0.1)] border border-[#4a7aff] rounded-xl px-4 py-2 md:px-6 md:py-3 backdrop-blur-md"
-            >
-                <div className="flex flex-col items-end leading-none">
-                    <span className="text-3xl md:text-5xl font-black text-[#4a7aff]">74%</span>
-                    <span className="text-xs md:text-sm text-white font-medium">completion rate</span>
+                    {/* Completion Badge (Re-integrated) */}
+                    <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.5, type: "spring" }}
+                        className="absolute top-12 right-6 md:top-24 md:right-24 bg-[#0a0a0a]/80 border border-[#4a7aff] rounded-xl px-4 py-2 backdrop-blur-md"
+                    >
+                        <span className="text-[#4a7aff] font-bold text-xl md:text-2xl">74% Completion</span>
+                    </motion.div>
                 </div>
+            )}
+
+        </div>
+    );
+}
+
+function FloodRow({ words, speed, direction }: { words: string[], speed: number, direction: number }) {
+    const time = useTime();
+    const x = useTransform(time, (t) => {
+        const distance = (t / 1000) * speed * 10; // Base speed multiplier
+        return direction === 1 ? -distance % 1000 : (distance % 1000) - 1000;
+    });
+
+    return (
+        <div className="flex overflow-hidden whitespace-nowrap opacity-50 my-2 md:my-4">
+            <motion.div style={{ x }} className="flex gap-8 md:gap-16">
+                {/* Repeat words enough times to fill screen + buffer */}
+                {[...words, ...words, ...words, ...words].map((word, i) => (
+                    <span
+                        key={i}
+                        className={`text-2xl md:text-6xl font-bold uppercase tracking-tighter ${i % 3 === 0 ? 'text-white' : 'text-[#333]'}`}
+                        style={{ fontFamily: 'var(--font-inter)' }}
+                    >
+                        {word}
+                    </span>
+                ))}
             </motion.div>
-
-            {/* --- FOOTER --- */}
-            <div className="absolute bottom-8 text-center w-full">
-                <p className="text-[10px] md:text-xs text-[#4a7aff] underline decoration-1 underline-offset-4 opacity-80">
-                    All projects deployable at time of reporting. Link list available.
-                </p>
-            </div>
-
         </div>
     );
 }

@@ -1,117 +1,104 @@
 "use client";
 
-import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { motion, useAnimationControls, PanInfo } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 
 // --- CONFIGURATION ---
-const DOMAINS = [
-    { id: "web", label: "Web Dev", stats: "3 workshops, 420 builders", angle: 0 },
-    { id: "nocode", label: "No-Code", stats: "2 workshops, 150 builders", angle: 90 },
-    { id: "python", label: "Python", stats: "2 workshops, 340 builders", angle: 180 },
-    { id: "startup", label: "Startup Practice", stats: "1 workshop, 80 builders", angle: 270 }
+const CARDS = [
+    { id: "ai_agents", title: "AI Agents", subtitle: "Solving Problems in AI", stats: "14 Workshops", color: "from-purple-500 to-indigo-600" },
+    { id: "web", title: "Full Stack Web", subtitle: "Core Engineering", stats: "3 Workshops", color: "from-blue-500 to-cyan-400" },
+    { id: "nocode", title: "No-Code", subtitle: "Velocity Track", stats: "2 Workshops", color: "from-emerald-500 to-teal-400" },
+    { id: "python", title: "Python for AI", subtitle: "Foundation", stats: "2 Workshops", color: "from-amber-500 to-orange-600" },
+    { id: "startup", title: "Startup Eng", subtitle: "Strategy", stats: "1 Workshop", color: "from-rose-500 to-pink-600" },
+    // Duplicate for infinite loop illusion
+    { id: "ai_agents_dup", title: "AI Agents", subtitle: "Solving Problems in AI", stats: "14 Workshops", color: "from-purple-500 to-indigo-600" },
+    { id: "web_dup", title: "Full Stack Web", subtitle: "Core Engineering", stats: "3 Workshops", color: "from-blue-500 to-cyan-400" },
 ];
 
 export default function Slide4_Genres({ onComplete }: { onComplete: () => void }) {
-    const [activeDomain, setActiveDomain] = useState<string | null>(null);
+    const controls = useAnimationControls();
+
+    // Auto-scroll logic (Fast Glide)
+    useEffect(() => {
+        controls.start({
+            x: "-50%", // Move to halfway point
+            transition: {
+                duration: 10, // Faster glide (was 20)
+                ease: "linear",
+                repeat: Infinity,
+                repeatType: "loop"
+            }
+        });
+    }, [controls]);
 
     return (
-        <div className="relative w-full h-full overflow-hidden bg-gradient-radial from-[#1a1a1a] to-[#0a0a0a] flex flex-col items-center justify-center">
+        <div className="relative w-full h-full overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center">
 
-            {/* --- ORBIT SYSTEM --- */}
-            <div className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px] flex items-center justify-center">
-
-                {/* Central Node */}
-                <div className="absolute z-20 text-center">
-                    <h1
-                        className="text-4xl md:text-6xl font-bold text-white leading-tight"
-                        style={{ fontFamily: 'var(--font-playfair)' }}
-                    >
-                        AI &<br />Automation
-                    </h1>
-                </div>
-
-                {/* Orbit Path (Visual) */}
-                <div className="absolute inset-0 rounded-full border border-[#4a4a4a] border-dashed opacity-30 animate-spin-slow" />
-
-                {/* Satellites */}
-                <motion.div
-                    className="absolute inset-0"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+            {/* --- HEADER --- */}
+            <div className="absolute top-12 md:top-24 text-center z-20">
+                <h1
+                    className="text-4xl md:text-6xl font-bold text-white mb-2"
+                    style={{ fontFamily: 'var(--font-playfair)' }}
                 >
-                    {DOMAINS.map((domain) => (
-                        <Satellite
-                            key={domain.id}
-                            domain={domain}
-                            isActive={activeDomain === domain.id}
-                            onClick={() => setActiveDomain(activeDomain === domain.id ? null : domain.id)}
-                        />
-                    ))}
-                </motion.div>
+                    Curriculum<br />Architecture
+                </h1>
+                <p className="text-sm md:text-lg text-[#7a7a7a] uppercase tracking-widest">
+                    What We Shipped
+                </p>
             </div>
 
-            {/* --- MOBILE TOOLTIP (Bottom Sheet style if active) --- */}
-            {activeDomain && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="absolute bottom-24 left-0 right-0 text-center"
-                >
-                    <div className="inline-block bg-[#1a1a1a] border border-[#3a3a3a] px-6 py-3 rounded-full shadow-2xl">
-                        <p className="text-white font-medium">
-                            {DOMAINS.find(d => d.id === activeDomain)?.stats}
-                        </p>
-                    </div>
-                </motion.div>
-            )}
+            {/* --- CAROUSEL TRACK --- */}
+            <div className="relative w-full h-[70vh] flex items-center overflow-hidden">
+                {/* Gradient Masks */}
+                <div className="absolute left-0 top-0 bottom-0 w-12 md:w-32 bg-gradient-to-r from-[#0a0a0a] to-transparent z-10 pointer-events-none" />
+                <div className="absolute right-0 top-0 bottom-0 w-12 md:w-32 bg-gradient-to-l from-[#0a0a0a] to-transparent z-10 pointer-events-none" />
 
-            {/* --- PROOF ELEMENT (Bottom) --- */}
-            <div className="absolute bottom-8 w-full px-6">
-                <div className="flex flex-wrap justify-center gap-4 text-[10px] md:text-xs text-[#5a5a5a] font-light">
-                    <span>AI: 14 workshops</span>
-                    <span>Web: 3</span>
-                    <span>No-Code: 2</span>
-                    <span>Python: 2</span>
-                    <span>Startup: 1</span>
-                </div>
+                <motion.div
+                    className="flex gap-4 md:gap-8 px-12 md:px-32"
+                    animate={controls}
+                    style={{ width: "max-content" }}
+                >
+                    {CARDS.map((card, i) => (
+                        <Card key={`${card.id}-${i}`} card={card} />
+                    ))}
+                </motion.div>
             </div>
 
         </div>
     );
 }
 
-function Satellite({ domain, isActive, onClick }: { domain: any, isActive: boolean, onClick: () => void }) {
+function Card({ card }: { card: any }) {
     return (
-        <div
-            className="absolute top-1/2 left-1/2 w-0 h-0"
-            style={{ transform: `rotate(${domain.angle}deg) translate(140px) rotate(-${domain.angle}deg)` }} // 140px radius for mobile
-        >
-            {/* Counter-rotate to keep text upright requires logic in parent or here. 
-                Actually, if parent rotates, children rotate. 
-                To keep text upright, we need to counter-rotate the child container.
-                Or simpler: Use CSS animation on parent, and counter-animation on child.
-            */}
-            <motion.div
-                className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"
-                style={{ rotate: -360 }} // Counter rotation handled by parent's animate prop? No, need dynamic.
-                // Simplified: Just let them rotate for now, or use a static layout for mobile if rotation is dizzying.
-                // User asked for orbit. Let's try to keep text upright.
-                animate={{ rotate: -360 }}
-                transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-            >
-                <div
-                    onClick={onClick}
-                    className={`flex flex-col items-center transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
-                >
-                    <div className={`w-3 h-3 rounded-full mb-2 ${isActive ? 'bg-white shadow-[0_0_10px_white]' : 'bg-[#b0b0b0]'}`} />
-                    <span
-                        className={`text-sm md:text-lg font-medium whitespace-nowrap ${isActive ? 'text-white' : 'text-[#b0b0b0]'}`}
-                        style={{ fontFamily: 'var(--font-inter)' }}
+        <div className="relative w-[220px] h-[500px] md:w-[280px] md:h-[600px] flex-shrink-0">
+            {/* Glassmorphic Pillar */}
+            <div className="absolute inset-0 bg-white/5 backdrop-blur-md border border-white/10 rounded-full overflow-hidden shadow-2xl">
+
+                {/* Gradient Orb */}
+                <div className={`absolute top-0 inset-x-0 h-full bg-gradient-to-b ${card.color} opacity-20`} />
+
+                {/* Content */}
+                <div className="absolute inset-0 p-6 flex flex-col justify-end text-center pb-12">
+                    <div className="mb-auto mt-12">
+                        <span className="inline-block px-3 py-1 rounded-full border border-white/20 text-[10px] text-white/80 uppercase tracking-wide">
+                            {card.subtitle}
+                        </span>
+                    </div>
+
+                    <h2
+                        className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight"
+                        style={{ fontFamily: 'var(--font-playfair)' }}
                     >
-                        {domain.label}
+                        {card.title}
+                    </h2>
+
+                    <div className="w-12 h-[1px] bg-white/30 mx-auto my-4" />
+
+                    <span className="text-lg text-white font-medium">
+                        {card.stats}
                     </span>
                 </div>
-            </motion.div>
+            </div>
         </div>
     );
 }
