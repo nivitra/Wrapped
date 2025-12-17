@@ -1,156 +1,141 @@
 "use client";
 
-import { motion, useAnimation, useTime, useTransform } from "framer-motion";
-import { useEffect, useState } from "react";
-import { wrappedData } from "@/data/wrappedData";
-import { physics } from "@/utils/physics";
-import { MapPin } from "lucide-react";
+import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
-// Approximate relative coordinates for South India cities (0-100 scale)
-const cities = [
-    { name: "Hyderabad", x: 50, y: 20, isCapital: true },
-    { name: "Bangalore", x: 45, y: 60 },
-    { name: "Chennai", x: 70, y: 55 },
-    { name: "Kochi", x: 30, y: 80 },
-    { name: "Coimbatore", x: 40, y: 70 },
-    { name: "Vizag", x: 80, y: 30 },
-    { name: "Vijayawada", x: 60, y: 35 },
-    { name: "Mysore", x: 40, y: 65 },
-    { name: "Trivandrum", x: 35, y: 90 },
-    { name: "Madurai", x: 45, y: 85 },
+// --- CONFIGURATION ---
+// Approximate relative coordinates for India map (0-100 scale)
+const CITIES = [
+    { name: "Hyderabad", x: 45, y: 60, pulse: 1.5 },
+    { name: "Bangalore", x: 42, y: 75, pulse: 1.5 },
+    { name: "Chennai", x: 52, y: 78, pulse: 2.2 },
+    { name: "Vizag", x: 55, y: 58, pulse: 2.2 },
+    { name: "Delhi", x: 40, y: 25, pulse: 3.0, highlight: true },
+    { name: "Noida", x: 42, y: 24, pulse: 3.0, highlight: true },
+    { name: "Mumbai", x: 25, y: 55, pulse: 3.0 },
+    { name: "Pune", x: 28, y: 58, pulse: 3.0 },
+    { name: "Warangal", x: 48, y: 58, pulse: 3.0 },
+    { name: "Vijayawada", x: 50, y: 62, pulse: 3.0 },
+    { name: "Kashmir", x: 35, y: 10, pulse: 0, label: "many more", type: "ghost" }
 ];
 
-// --- 1. Custom Hook for Path Drawing ---
-const usePathDrawer = () => {
-    const controls = useAnimation();
-
-    useEffect(() => {
-        controls.start({
-            pathLength: 1,
-            opacity: 1,
-            transition: { duration: 2, ease: "easeInOut" }
-        });
-    }, [controls]);
-
-    return controls;
-};
-
 export default function Slide3_Map({ onComplete }: { onComplete: () => void }) {
-    const slideData = wrappedData.slides.find(s => s.id === "geographic_reach")?.data as any;
-    const pathControls = usePathDrawer();
-    const time = useTime();
-    const pulse = useTransform(time, (t) => 1 + Math.sin(t * 0.005) * 0.2);
-
-    useEffect(() => {
-        const timer = setTimeout(onComplete, 8000); // Longer duration for map exploration
-        return () => clearTimeout(timer);
-    }, [onComplete]);
+    // Simple SVG Path for India (Abstract/Geometric representation)
+    // This is a simplified polygon to resemble India
+    const indiaPath = "M 30 5 L 50 5 L 60 15 L 70 30 L 60 50 L 50 85 L 40 95 L 30 85 L 20 50 L 10 30 L 20 15 Z";
+    // Note: The above path is very abstract. For a "Strategic intelligence brief" look, 
+    // we might want a more detailed path or just rely on the nodes if we can't import a complex SVG.
+    // Let's use a slightly better polygon or just the nodes on a dark bg if path is too hard to get right without assets.
+    // Actually, let's try to make it look decent.
 
     return (
-        <div className="relative w-full h-full flex flex-col items-center justify-center bg-deep-void overflow-hidden">
+        <div className="relative w-full h-full overflow-hidden bg-[#1a1a1a] flex flex-col items-center justify-center">
 
-            {/* --- LAYER A: HEADER --- */}
-            <motion.div
-                className="absolute top-12 z-20 text-center"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-            >
-                <div className="text-xs font-mono text-neon-green border border-neon-green/30 px-3 py-1 rounded-full inline-block mb-2">
-                    GEOGRAPHIC REACH
-                </div>
-                <h2 className="text-4xl font-black text-white uppercase tracking-tighter">
-                    Inevitable <span className="text-neon-green">Growth</span>
-                </h2>
-            </motion.div>
-
-            {/* --- LAYER B: SVG MAP CONTAINER --- */}
-            <div className="relative w-full max-w-2xl aspect-square">
-                {/* Map Background Shape */}
-                <div className="absolute inset-0 opacity-10">
-                    <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <path
-                            d="M 20 10 L 80 10 L 90 90 L 10 90 Z" // Abstract South India shape
-                            fill="none"
-                            stroke="#333"
-                            strokeWidth="0.5"
-                        />
-                    </svg>
-                </div>
-
-                {/* Connecting Lines (The "Laser" Network) */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
-                    <defs>
-                        <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="rgba(0, 255, 0, 0)" />
-                            <stop offset="50%" stopColor="rgba(0, 255, 0, 0.5)" />
-                            <stop offset="100%" stopColor="rgba(0, 255, 0, 0)" />
-                        </linearGradient>
-                    </defs>
-                    {cities.map((city, i) => (
-                        <motion.line
-                            key={`line-${i}`}
-                            x1="50%"
-                            y1="20%" // Originating from Hyderabad (approx)
-                            x2={`${city.x}%`}
-                            y2={`${city.y}%`}
-                            stroke="url(#lineGradient)"
-                            strokeWidth="1"
-                            initial={{ pathLength: 0, opacity: 0 }}
-                            animate={pathControls}
-                            transition={{ delay: i * 0.1, duration: 1.5, ease: "easeOut" }}
-                        />
-                    ))}
+            {/* --- MAP CONTAINER --- */}
+            <div className="relative w-[90vw] h-[70vh] md:w-[60vh] md:h-[80vh]">
+                {/* Base Map */}
+                <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full opacity-20 pointer-events-none">
+                    {/* Using a very rough approximation of India's shape for context */}
+                    <path
+                        d="M35 5 L55 5 L65 15 L75 35 L65 55 L55 90 L45 98 L35 90 L25 55 L15 35 L25 15 Z"
+                        fill="none"
+                        stroke="#3a3a3a"
+                        strokeWidth="0.5"
+                        strokeLinejoin="round"
+                    />
                 </svg>
 
-                {/* --- LAYER C: CITY NODES --- */}
-                {cities.map((city, i) => (
-                    <div key={i} className="absolute z-20" style={{ left: `${city.x}%`, top: `${city.y}%` }}>
-                        {/* Pulse Effect for Capital/Hub */}
-                        {city.isCapital && (
-                            <motion.div
-                                className="absolute -inset-4 bg-neon-green/20 rounded-full blur-md"
-                                style={{ scale: pulse }}
-                            />
-                        )}
-
-                        {/* The Node Dot */}
-                        <motion.div
-                            className={`w-3 h-3 md:w-4 md:h-4 rounded-full shadow-[0_0_15px_rgba(0,255,0,0.5)] -translate-x-1/2 -translate-y-1/2 ${city.isCapital ? 'bg-white border-2 border-neon-green' : 'bg-neon-green'}`}
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: i * 0.1 + 0.5, type: "spring", stiffness: 300, damping: 20 }}
-                        />
-
-                        {/* City Label */}
-                        <motion.div
-                            className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] md:text-xs font-mono whitespace-nowrap pointer-events-none"
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 + 0.8 }}
-                        >
-                            <span className={`${city.isCapital ? 'text-white font-bold text-sm' : 'text-gray-400'}`}>
-                                {city.name}
-                            </span>
-                        </motion.div>
-                    </div>
+                {/* City Nodes */}
+                {CITIES.map((city, i) => (
+                    <CityNode key={city.name} city={city} index={i} />
                 ))}
             </div>
 
-            {/* --- LAYER D: FOOTER IMPACT --- */}
-            <motion.div
-                className="absolute bottom-20 z-20 text-center"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 2.5, ...physics.heavy } as any}
-            >
-                <div className="text-6xl md:text-8xl font-black text-white leading-none tracking-tighter drop-shadow-2xl">
-                    {slideData?.cities_reached}
-                </div>
-                <div className="text-xl text-gray-400 uppercase tracking-widest font-bold">
-                    Cities Conquered
-                </div>
-            </motion.div>
+            {/* --- LEGEND (Top Right) --- */}
+            <div className="absolute top-8 right-6 md:top-12 md:right-12 text-right">
+                <p className="text-[10px] md:text-xs text-[#5a5a5a] font-light leading-relaxed">
+                    Node size = Institutional partnerships<br />
+                    Pulse rate = Builder density
+                </p>
+            </div>
+
+            {/* --- TITLE (Bottom Left - Optional context) --- */}
+            <div className="absolute bottom-8 left-6 md:bottom-12 md:left-12">
+                <h2
+                    className="text-2xl md:text-4xl font-bold text-white mb-2"
+                    style={{ fontFamily: 'var(--font-playfair)' }}
+                >
+                    Geographic<br />Legitimacy
+                </h2>
+            </div>
+
         </div>
+    );
+}
+
+function CityNode({ city, index }: { city: any, index: number }) {
+    const isHighlight = city.highlight;
+    const isGhost = city.type === "ghost";
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: isGhost ? 0.5 : (isHighlight ? 0.95 : 0.85), scale: 1 }}
+            transition={{
+                duration: 0.5,
+                delay: index * 0.15, // Sequential reveal
+                type: "spring",
+                damping: 12
+            }}
+            className="absolute flex flex-col items-center"
+            style={{
+                left: `${city.x}%`,
+                top: `${city.y}%`,
+                transform: 'translate(-50%, -50%)'
+            }}
+        >
+            {/* Label */}
+            <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: -10 }}
+                transition={{ delay: index * 0.15 + 0.2 }}
+                className={`absolute bottom-full mb-2 whitespace-nowrap ${isHighlight ? 'z-20' : 'z-10'}`}
+            >
+                <span
+                    className={`${isHighlight ? 'text-base font-bold text-white drop-shadow-md' : isGhost ? 'text-xs italic text-[#5a5a5a]' : 'text-xs font-medium text-white'}`}
+                    style={{ fontFamily: isHighlight ? 'var(--font-playfair)' : 'var(--font-inter)' }}
+                >
+                    {city.name}
+                </span>
+                {/* Connector Line */}
+                {!isGhost && <div className="w-[1px] h-[10px] bg-[#4a4a4a] mx-auto" />}
+            </motion.div>
+
+            {/* Node Circle */}
+            <div className="relative">
+                {/* Pulse Ring */}
+                {!isGhost && (
+                    <motion.div
+                        animate={{ scale: [1, 2.5], opacity: [0.5, 0] }}
+                        transition={{
+                            duration: city.pulse,
+                            repeat: Infinity,
+                            ease: "easeOut"
+                        }}
+                        className={`absolute inset-0 rounded-full ${isHighlight ? 'bg-white' : 'bg-white'}`}
+                    />
+                )}
+
+                {/* Core Node */}
+                <div
+                    className={`rounded-full ${isGhost ? 'border border-[#5a5a5a]' : 'bg-white'}`}
+                    style={{
+                        width: isHighlight ? 15 : (isGhost ? 12 : 8),
+                        height: isHighlight ? 15 : (isGhost ? 12 : 8),
+                        opacity: isHighlight ? 1 : (isGhost ? 0 : 0.85)
+                    }}
+                />
+            </div>
+        </motion.div>
     );
 }

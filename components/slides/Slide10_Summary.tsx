@@ -1,100 +1,78 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import { wrappedData } from "@/data/wrappedData";
-import { physics } from "@/utils/physics";
-import { Share2, RotateCcw } from "lucide-react";
+import { motion } from 'framer-motion';
 
 export default function Slide10_Summary({ onComplete }: { onComplete: () => void }) {
-    const [showActions, setShowActions] = useState(false);
-
-    // Helper to safely access data with fallback
-    const getData = (id: string) => (wrappedData.slides.find(s => s.id === id)?.data || {}) as any;
-    const hookData = getData("hook");
-    const scaleData = getData("scale");
-    const mapData = getData("geographic_reach");
-    const fandomData = getData("engagement");
-    const auraData = getData("transformation");
-
-    useEffect(() => {
-        const timer = setTimeout(() => setShowActions(true), 4000);
-        return () => clearTimeout(timer);
-    }, []);
-
     return (
-        <div className="relative w-full h-full flex flex-col items-center justify-center bg-deep-void overflow-hidden p-4">
-            {/* Holographic Beam */}
-            <motion.div
-                className="absolute top-0 w-full h-full bg-gradient-to-b from-neon-blue/20 via-transparent to-transparent pointer-events-none"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0, 0.5, 0] }}
-                transition={{ duration: 0.5, repeat: 3 }}
-            />
+        <div className="relative w-full h-full overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center p-6 border-[8px] border-white/85 box-border">
 
-            {/* Summary Card */}
+            {/* --- TITLE --- */}
             <motion.div
-                className="relative z-10 w-full max-w-md bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,243,255,0.2)]"
-                initial={{ y: 100, opacity: 0, scale: 0.9 }}
-                animate={{ y: 0, opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5, ...physics.heavy } as any}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="absolute top-24 md:top-32 text-center w-full"
             >
-                {/* Header */}
-                <div className="bg-gradient-to-r from-neon-purple to-neon-blue p-6 text-center">
-                    <h2 className="text-3xl font-black text-white uppercase tracking-tighter">
-                        2025 WRAPPED
-                    </h2>
-                    <p className="text-white/80 text-sm uppercase tracking-widest font-mono">
-                        LearnApart Workshop Universe
-                    </p>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="p-6 grid grid-cols-2 gap-4">
-                    <div className="bg-white/5 p-4 rounded-lg border border-white/10">
-                        <div className="text-gray-400 text-xs uppercase tracking-widest mb-1">Students</div>
-                        <div className="text-2xl font-black text-white">{scaleData?.students_taught?.toLocaleString()}</div>
-                    </div>
-                    <div className="bg-white/5 p-4 rounded-lg border border-white/10">
-                        <div className="text-gray-400 text-xs uppercase tracking-widest mb-1">Cities</div>
-                        <div className="text-2xl font-black text-white">{mapData?.cities_reached}</div>
-                    </div>
-                    <div className="bg-white/5 p-4 rounded-lg border border-white/10">
-                        <div className="text-gray-400 text-xs uppercase tracking-widest mb-1">Rating</div>
-                        <div className="text-2xl font-black text-neon-yellow">{fandomData?.avg_rating || fandomData?.average_rating}</div>
-                    </div>
-                    <div className="bg-white/5 p-4 rounded-lg border border-white/10">
-                        <div className="text-gray-400 text-xs uppercase tracking-widest mb-1">Builders</div>
-                        <div className="text-xl font-black text-neon-purple truncate">{auraData?.first_time_project_builders_percent}%</div>
-                    </div>
-                </div>
-
-                {/* Footer */}
-                <div className="p-6 pt-0 text-center">
-                    <div className="text-neon-green font-mono text-xs uppercase tracking-widest animate-pulse">
-            // SYSTEM_OPTIMIZED_FOR_2026
-                    </div>
-                </div>
+                <h1
+                    className="text-4xl md:text-6xl font-bold text-white"
+                    style={{ fontFamily: 'var(--font-playfair)' }}
+                >
+                    LearnApart<br />Wrapped 2025
+                </h1>
             </motion.div>
 
-            {/* Actions */}
-            {showActions && (
-                <motion.div
-                    className="mt-8 flex gap-4"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                >
-                    <button className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full font-bold uppercase tracking-wider hover:bg-gray-200 transition-colors">
-                        <Share2 size={20} /> Share
-                    </button>
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="flex items-center gap-2 bg-white/10 text-white border border-white/20 px-6 py-3 rounded-full font-bold uppercase tracking-wider hover:bg-white/20 transition-colors"
+            {/* --- SUMMARY GRID --- */}
+            <div className="grid grid-cols-2 gap-px bg-[#2a2a2a] border border-[#2a2a2a] w-full max-w-md aspect-square">
+                {[
+                    { val: "4,860+", label: "Students" },
+                    { val: "1,340+", label: "Projects" },
+                    { val: "11+", label: "Cities" },
+                    { val: "22", label: "Workshops" }
+                ].map((item, i) => (
+                    <motion.div
+                        key={i}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 + i * 0.1 }}
+                        className="bg-[#0a0a0a] flex flex-col items-center justify-center p-4"
                     >
-                        <RotateCcw size={20} /> Replay
-                    </button>
-                </motion.div>
-            )}
+                        <span
+                            className="text-4xl md:text-5xl font-black text-white mb-2"
+                            style={{ fontFamily: 'var(--font-inter)' }}
+                        >
+                            {item.val}
+                        </span>
+                        <span className="text-sm md:text-lg text-[#b0b0b0] font-normal">
+                            {item.label}
+                        </span>
+                    </motion.div>
+                ))}
+            </div>
+
+            {/* --- FOOTER & ACCENT --- */}
+            <div className="absolute bottom-24 md:bottom-32 text-center w-full">
+                <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: 200 }}
+                    transition={{ delay: 1, duration: 1 }}
+                    className="h-[2px] bg-[#4a7aff] opacity-40 mx-auto mb-8"
+                />
+                <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.2 }}
+                    className="text-2xl md:text-3xl text-[#4a7aff] italic"
+                    style={{ fontFamily: 'var(--font-playfair)' }}
+                >
+                    Learning that ships.
+                </motion.p>
+            </div>
+
+            {/* --- QR CODE PLACEHOLDER --- */}
+            <div className="absolute bottom-4 left-4 w-12 h-12 bg-white/10 rounded-sm flex items-center justify-center">
+                <span className="text-[8px] text-white/50">QR</span>
+            </div>
+
         </div>
     );
 }

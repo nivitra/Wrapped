@@ -1,100 +1,117 @@
-
 "use client";
 
-import { motion, useAnimation } from "framer-motion";
-import { useEffect, useState } from "react";
-import { wrappedData } from "@/data/wrappedData";
-import { physics } from "@/utils/physics";
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+
+// --- CONFIGURATION ---
+const DOMAINS = [
+    { id: "web", label: "Web Dev", stats: "3 workshops, 420 builders", angle: 0 },
+    { id: "nocode", label: "No-Code", stats: "2 workshops, 150 builders", angle: 90 },
+    { id: "python", label: "Python", stats: "2 workshops, 340 builders", angle: 180 },
+    { id: "startup", label: "Startup Practice", stats: "1 workshop, 80 builders", angle: 270 }
+];
 
 export default function Slide4_Genres({ onComplete }: { onComplete: () => void }) {
-    const slideData = wrappedData.slides.find(s => s.id === "categories")?.data;
-    const controls = useAnimation();
-
-    const [floatingWords, setFloatingWords] = useState<{ text: string; x: number; y: number; z: number; scale: number; targetX: number; targetY: number; rotate: number }[]>([]);
-
-    useEffect(() => {
-        if (slideData?.categories) {
-            setFloatingWords(slideData.categories
-                .filter((c: string) => c !== slideData.primary_category)
-                .map((c: string) => ({
-                    text: c,
-                    x: (Math.random() - 0.5) * 800,
-                    y: (Math.random() - 0.5) * 800,
-                    z: (Math.random() - 0.5) * 400,
-                    scale: 0.5,
-                    targetX: (Math.random() - 0.5) * 1000,
-                    targetY: (Math.random() - 0.5) * 1000,
-                    rotate: (Math.random() - 0.5) * 45
-                }))
-            );
-        }
-    }, [slideData]);
-
-    useEffect(() => {
-        const sequence = async () => {
-            // Initial drift
-            await controls.start("drift");
-            // Shockwave entry
-            await controls.start("surge");
-            setTimeout(onComplete, 5000);
-        };
-        sequence();
-    }, [controls, onComplete]);
+    const [activeDomain, setActiveDomain] = useState<string | null>(null);
 
     return (
-        <div className="relative w-full h-full flex items-center justify-center bg-deep-void overflow-hidden perspective-[1000px]">
-            {/* Background Gradient Shift */}
-            <motion.div
-                className="absolute inset-0 bg-gradient-to-br from-neon-blue/20 to-transparent opacity-0"
-                animate={{ opacity: [0, 0.5, 0.2] }}
-                transition={{ delay: 2, duration: 0.5 }} // Sync with surge
-            />
+        <div className="relative w-full h-full overflow-hidden bg-gradient-radial from-[#1a1a1a] to-[#0a0a0a] flex flex-col items-center justify-center">
 
-            {/* Floating Background Words */}
-            {floatingWords.map((word, i) => (
+            {/* --- ORBIT SYSTEM --- */}
+            <div className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px] flex items-center justify-center">
+
+                {/* Central Node */}
+                <div className="absolute z-20 text-center">
+                    <h1
+                        className="text-4xl md:text-6xl font-bold text-white leading-tight"
+                        style={{ fontFamily: 'var(--font-playfair)' }}
+                    >
+                        AI &<br />Automation
+                    </h1>
+                </div>
+
+                {/* Orbit Path (Visual) */}
+                <div className="absolute inset-0 rounded-full border border-[#4a4a4a] border-dashed opacity-30 animate-spin-slow" />
+
+                {/* Satellites */}
                 <motion.div
-                    key={word.text}
-                    className="absolute text-4xl font-bold text-gray-700 opacity-30 whitespace-nowrap"
-                    initial={{
-                        x: word.x,
-                        y: word.y,
-                        z: word.z,
-                        scale: word.scale
-                    }}
-                    animate={{
-                        x: word.targetX,
-                        y: word.targetY,
-                        rotate: word.rotate,
-                        opacity: [0.3, 0], // Fade out on shockwave
-                    }}
-                    transition={{ duration: 4, delay: 2 }} // Drift away when main text hits
+                    className="absolute inset-0"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
                 >
-                    {word.text}
+                    {DOMAINS.map((domain) => (
+                        <Satellite
+                            key={domain.id}
+                            domain={domain}
+                            isActive={activeDomain === domain.id}
+                            onClick={() => setActiveDomain(activeDomain === domain.id ? null : domain.id)}
+                        />
+                    ))}
                 </motion.div>
-            ))}
+            </div>
 
-            {/* Main Kinetic Typography */}
-            <motion.div
-                className="z-10 relative text-center"
-                initial={{ scale: 0, z: -1000, opacity: 0 }}
-                animate={{ scale: 1, z: 0, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20, mass: 1.5, delay: 2 }} // Heavy impact
-            >
-                <h1 className="text-[12vw] font-black text-white leading-[0.8] tracking-tighter mix-blend-screen drop-shadow-[0_0_30px_rgba(0,243,255,0.5)]">
-                    AI &<br />
-                    <span className="text-neon-blue">AUTO</span><br />
-                    MATION
-                </h1>
-            </motion.div>
+            {/* --- MOBILE TOOLTIP (Bottom Sheet style if active) --- */}
+            {activeDomain && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute bottom-24 left-0 right-0 text-center"
+                >
+                    <div className="inline-block bg-[#1a1a1a] border border-[#3a3a3a] px-6 py-3 rounded-full shadow-2xl">
+                        <p className="text-white font-medium">
+                            {DOMAINS.find(d => d.id === activeDomain)?.stats}
+                        </p>
+                    </div>
+                </motion.div>
+            )}
 
-            {/* Shockwave Rings */}
-            <motion.div
-                className="absolute rounded-full border-4 border-neon-blue"
-                initial={{ width: 0, height: 0, opacity: 1 }}
-                animate={{ width: "200vw", height: "200vw", opacity: 0 }}
-                transition={{ delay: 2, duration: 1, ease: "circOut" }}
-            />
+            {/* --- PROOF ELEMENT (Bottom) --- */}
+            <div className="absolute bottom-8 w-full px-6">
+                <div className="flex flex-wrap justify-center gap-4 text-[10px] md:text-xs text-[#5a5a5a] font-light">
+                    <span>AI: 14 workshops</span>
+                    <span>Web: 3</span>
+                    <span>No-Code: 2</span>
+                    <span>Python: 2</span>
+                    <span>Startup: 1</span>
+                </div>
+            </div>
+
         </div>
     );
 }
 
+function Satellite({ domain, isActive, onClick }: { domain: any, isActive: boolean, onClick: () => void }) {
+    return (
+        <div
+            className="absolute top-1/2 left-1/2 w-0 h-0"
+            style={{ transform: `rotate(${domain.angle}deg) translate(140px) rotate(-${domain.angle}deg)` }} // 140px radius for mobile
+        >
+            {/* Counter-rotate to keep text upright requires logic in parent or here. 
+                Actually, if parent rotates, children rotate. 
+                To keep text upright, we need to counter-rotate the child container.
+                Or simpler: Use CSS animation on parent, and counter-animation on child.
+            */}
+            <motion.div
+                className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+                style={{ rotate: -360 }} // Counter rotation handled by parent's animate prop? No, need dynamic.
+                // Simplified: Just let them rotate for now, or use a static layout for mobile if rotation is dizzying.
+                // User asked for orbit. Let's try to keep text upright.
+                animate={{ rotate: -360 }}
+                transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+            >
+                <div
+                    onClick={onClick}
+                    className={`flex flex-col items-center transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
+                >
+                    <div className={`w-3 h-3 rounded-full mb-2 ${isActive ? 'bg-white shadow-[0_0_10px_white]' : 'bg-[#b0b0b0]'}`} />
+                    <span
+                        className={`text-sm md:text-lg font-medium whitespace-nowrap ${isActive ? 'text-white' : 'text-[#b0b0b0]'}`}
+                        style={{ fontFamily: 'var(--font-inter)' }}
+                    >
+                        {domain.label}
+                    </span>
+                </div>
+            </motion.div>
+        </div>
+    );
+}

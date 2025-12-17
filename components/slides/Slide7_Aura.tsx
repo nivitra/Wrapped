@@ -1,98 +1,96 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import { wrappedData } from "@/data/wrappedData";
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+
+// --- CONFIGURATION ---
+const QUOTES = [
+    { text: "I didn't know I could build this.", author: "Raj, VIT" },
+    { text: "First time my code touched a real API.", author: "Priya, NIT Warangal" },
+    { text: "The workshop didn't end at 5 PM.", author: "Aman, DTU" }
+];
 
 export default function Slide7_Aura({ onComplete }: { onComplete: () => void }) {
-    const slideData = wrappedData.slides.find(s => s.id === "transformation")?.data || { first_time_project_builders_percent: 0, aura: "Loading..." };
-    if (!slideData) console.error("Slide 7 data missing");
-    const [particles, setParticles] = useState<{ x: number; y: number; yOffset: number; duration: number }[]>([]);
+    const [quoteIndex, setQuoteIndex] = useState(0);
 
+    // Rotate quotes
     useEffect(() => {
-        setParticles(Array.from({ length: 20 }).map(() => ({
-            x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-            y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
-            yOffset: Math.random() * -100,
-            duration: 2 + Math.random() * 3
-        })));
+        const interval = setInterval(() => {
+            setQuoteIndex((prev) => (prev + 1) % QUOTES.length);
+        }, 3000);
+        return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-        const timer = setTimeout(onComplete, 6000);
-        return () => clearTimeout(timer);
-    }, [onComplete]);
-
     return (
-        <div className="relative w-full h-full flex items-center justify-center bg-deep-void overflow-hidden">
-            {/* Liquid Blobs Background */}
-            <div className="absolute inset-0 filter blur-[100px] opacity-70 mix-blend-screen pointer-events-none">
+        <div className="relative w-full h-full overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center">
+
+            {/* --- MORPHING BLOBS --- */}
+            <div className="relative w-full h-[50vh] flex items-center justify-center">
+                {/* Left Blob (Consumer) - Fades out */}
                 <motion.div
-                    className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-purple rounded-full"
-                    animate={{
-                        scale: [1, 1.5, 1],
-                        x: [0, 100, 0],
-                        y: [0, -50, 0],
-                    }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                    initial={{ opacity: 1, scale: 1 }}
+                    animate={{ opacity: 0, scale: 0.5 }}
+                    transition={{ duration: 3, ease: "easeInOut" }}
+                    className="absolute w-64 h-64 bg-[#3a3a3a] rounded-full blur-3xl"
                 />
+
+                {/* Right Blob (Builder) - Fades in & Glows */}
                 <motion.div
-                    className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-blue rounded-full"
-                    animate={{
-                        scale: [1, 1.2, 1],
-                        x: [0, -100, 0],
-                        y: [0, 50, 0],
-                    }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1.2 }}
+                    transition={{ duration: 3, ease: "easeInOut" }}
+                    className="absolute w-64 h-64 bg-[#4a7aff] rounded-full blur-[60px] opacity-40"
                 />
             </div>
 
-            {/* Main Content */}
-            <div className="z-10 relative text-center px-4">
+            {/* --- STATS OVERLAY --- */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 gap-12">
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                    className="mb-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1, duration: 1 }}
+                    className="text-center"
                 >
-                    <p className="text-gray-400 text-sm uppercase tracking-widest mb-4">Transformation Rate</p>
-                    <h2 className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.5)]">
-                        {slideData?.first_time_project_builders_percent}%
-                    </h2>
+                    <h1 className="text-7xl md:text-9xl font-black text-[#4a7aff] leading-none">82%</h1>
+                    <p className="text-lg md:text-2xl text-[#b0b0b0] font-normal">+ built first project</p>
                 </motion.div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1, duration: 1 }}
-                    className="max-w-md mx-auto"
+                    transition={{ delay: 1.5, duration: 1 }}
+                    className="text-center"
                 >
-                    <p className="text-xl md:text-2xl text-neon-blue font-light leading-relaxed">
-                        First-time Builders
-                    </p>
+                    <h1 className="text-7xl md:text-9xl font-black text-[#4a7aff] leading-none">64%</h1>
+                    <p className="text-lg md:text-2xl text-[#b0b0b0] font-normal">+ first-time AI experience</p>
                 </motion.div>
             </div>
 
-            {/* Floating Particles */}
-            {particles.map((p, i) => (
-                <motion.div
-                    key={i}
-                    className="absolute w-2 h-2 bg-white rounded-full opacity-20"
-                    initial={{
-                        x: p.x,
-                        y: p.y,
-                    }}
-                    animate={{
-                        y: [null, p.yOffset],
-                        opacity: [0.2, 0],
-                    }}
-                    transition={{
-                        duration: p.duration,
-                        repeat: Infinity,
-                        ease: "linear",
-                    }}
-                />
-            ))}
+            {/* --- QUOTES CAROUSEL --- */}
+            <div className="absolute bottom-24 w-full px-6 text-center h-20">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={quoteIndex}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <p className="text-lg md:text-xl text-[#7a7a7a] italic mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>
+                            &quot;{QUOTES[quoteIndex].text}&quot;
+                        </p>
+                        <p className="text-sm text-[#5a5a5a] font-medium">
+                            — {QUOTES[quoteIndex].author}
+                        </p>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
+
+            {/* --- FOOTER --- */}
+            <div className="absolute bottom-8 text-[#5a5a5a] text-[10px]">
+                n=4860, verified post-workshop submissions
+            </div>
+
         </div>
     );
 }

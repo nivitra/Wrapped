@@ -1,87 +1,86 @@
 "use client";
 
-import { motion, useAnimation } from "framer-motion";
-import { useEffect, useState } from "react";
-import { wrappedData } from "@/data/wrappedData";
-import { physics } from "@/utils/physics";
-import { Crosshair, Target } from "lucide-react";
+import { motion } from 'framer-motion';
+
+// --- CONFIGURATION ---
+const MECHANICS = [
+    { title: "Cohorts", desc: "4 sessions/city/year" },
+    { title: "Builder Pass", desc: "Scalable certification" },
+    { title: "Campus Partnerships", desc: "Revenue-share model" }
+];
 
 export default function Slide9_Future({ onComplete }: { onComplete: () => void }) {
-    const slideData = wrappedData.slides.find(s => s.id === "future_targets")?.data || { target_students: 0, target_year: 2026, target_workshops: 0 };
-    if (!slideData) console.error("Slide 9 data missing");
-    const [locked, setLocked] = useState(false);
-    const controls = useAnimation();
-
-    useEffect(() => {
-        const sequence = async () => {
-            // Scanning
-            await controls.start("scan");
-            // Lock on
-            setLocked(true);
-            await controls.start("lock");
-            setTimeout(onComplete, 6000);
-        };
-        sequence();
-    }, [controls, onComplete]);
-
     return (
-        <div className="relative w-full h-full flex items-center justify-center bg-deep-void overflow-hidden">
-            {/* HUD Grid */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,0,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.05)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none" />
+        <div className="relative w-full h-full overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center p-6">
 
-            {/* Scanning Line */}
-            <motion.div
-                className="absolute inset-x-0 h-1 bg-neon-green/50 shadow-[0_0_20px_rgba(0,255,0,0.5)]"
-                animate={{ top: ["0%", "100%"] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            />
+            {/* --- HUD RETICLE & TARGET --- */}
+            <div className="relative mb-16">
+                {/* Crosshair Animation */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 2, rotate: 45 }}
+                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                    transition={{ duration: 1.2, ease: "circOut" }}
+                    className="absolute inset-0 -m-8 border border-[#4a7aff] rounded-full opacity-50"
+                />
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1, duration: 0.2 }}
+                    className="absolute top-0 left-1/2 -translate-x-1/2 -mt-2 w-1 h-4 bg-[#4a7aff]"
+                />
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1, duration: 0.2 }}
+                    className="absolute bottom-0 left-1/2 -translate-x-1/2 -mb-2 w-1 h-4 bg-[#4a7aff]"
+                />
 
-            {/* Target Reticle */}
-            <motion.div
-                className="relative z-10 flex flex-col items-center justify-center"
-                initial={{ scale: 1.5, opacity: 0 }}
-                animate={controls}
-                variants={{
-                    scan: { scale: 1.2, opacity: 0.5 },
-                    lock: { scale: 1, opacity: 1, transition: { ...physics.heavy } as any }
-                }}
-            >
-                <div className="relative p-12 border-2 border-neon-green rounded-lg bg-black/80 backdrop-blur-md">
-                    {/* Corner Markers */}
-                    <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-neon-green -mt-1 -ml-1" />
-                    <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-neon-green -mt-1 -mr-1" />
-                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-neon-green -mb-1 -ml-1" />
-                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-neon-green -mb-1 -mr-1" />
+                {/* Target Number */}
+                <motion.h1
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                    className="text-6xl md:text-9xl font-black text-white tracking-tighter"
+                    style={{ fontFamily: 'var(--font-inter)' }}
+                >
+                    25,000+
+                </motion.h1>
+            </div>
 
-                    <div className="text-center">
-                        <div className="flex items-center justify-center gap-2 text-neon-green mb-4 animate-pulse">
-                            <Target size={24} />
-                            <span className="uppercase tracking-widest font-mono">Target Locked</span>
-                        </div>
+            {/* --- PROGRESS BAR --- */}
+            <div className="w-full max-w-xl h-2 bg-[#2a2a2a] rounded-full mb-12 overflow-hidden">
+                <motion.div
+                    initial={{ width: "19%" }} // 4860 / 25000 approx
+                    animate={{ width: "100%" }}
+                    transition={{ delay: 1.5, duration: 2, ease: "easeInOut" }}
+                    className="h-full bg-[#4a7aff]"
+                />
+            </div>
 
-                        <h2 className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter">
-                            {slideData?.target_students?.toLocaleString()}
-                        </h2>
-                        <p className="text-xl text-gray-400 uppercase tracking-widest mt-2 font-mono">
-                            Students in {slideData?.target_year}
-                        </p>
-                    </div>
-                </div>
-
-                {/* Focus Area */}
-                {locked && (
+            {/* --- MECHANICS GRID --- */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-4xl text-center md:text-left">
+                {MECHANICS.map((mech, i) => (
                     <motion.div
-                        className="absolute -bottom-32 flex items-center gap-4 bg-neon-green/10 border border-neon-green px-6 py-3 rounded"
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
+                        key={i}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 3 + i * 0.2 }}
+                        className="flex flex-col items-center md:items-start"
                     >
-                        <Crosshair className="text-neon-green" />
-                        <div className="text-neon-green font-mono uppercase">
-                            Target Workshops: <span className="font-bold text-white">{slideData?.target_workshops}</span>
-                        </div>
+                        <div className="w-6 h-6 border border-[#4a7aff] rounded-full mb-3" /> {/* Icon placeholder */}
+                        <h3 className="text-lg font-medium text-white mb-1">{mech.title}</h3>
+                        <p className="text-sm text-[#b0b0b0]">{mech.desc}</p>
                     </motion.div>
-                )}
-            </motion.div>
+                ))}
+            </div>
+
+            {/* --- FOOTER --- */}
+            <div className="absolute bottom-8 text-center w-full px-6">
+                <p className="text-[10px] text-[#5a5a5a]">
+                    Targets based on 2025 unit economics and confirmed 2026 pilot commitments.
+                </p>
+            </div>
+
         </div>
     );
 }

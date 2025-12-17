@@ -1,119 +1,96 @@
 "use client";
 
-import { motion, useAnimation } from "framer-motion";
-import { useEffect, useState } from "react";
-import { wrappedData } from "@/data/wrappedData";
-import { physics } from "@/utils/physics";
-import { Zap, Camera, Star } from "lucide-react";
+import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+
+// --- CONFIGURATION ---
+const STATS = [
+    { value: "5", label: "institutions", delay: 0 },
+    { value: "2,200+", label: "active participants", delay: 0.2 },
+    { value: "3,000+", label: "production agents", delay: 0.4 }
+];
+
+const CONFETTI = ["{ }", "[ ]", "=>", "fn", "&&", "||", "</>", "01"];
 
 export default function Slide5_TopHit({ onComplete }: { onComplete: () => void }) {
-    const slideData = wrappedData.slides.find(s => s.id === "top_workshop")?.data;
-    const [isFlipped, setIsFlipped] = useState(false);
-    const [confetti, setConfetti] = useState<{ x: number; duration: number }[]>([]);
-    const controls = useAnimation();
-
-    useEffect(() => {
-        setConfetti(Array.from({ length: 50 }).map(() => ({
-            x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-            duration: 2 + Math.random()
-        })));
-    }, []);
-
-    useEffect(() => {
-        const sequence = async () => {
-            // Drop
-            await controls.start("drop");
-            // Wait a beat
-            await new Promise(r => setTimeout(r, 500));
-            // Flip
-            setIsFlipped(true);
-            setTimeout(onComplete, 6000);
-        };
-        sequence();
-    }, [controls, onComplete]);
-
     return (
-        <div className="relative w-full h-full flex items-center justify-center bg-deep-void overflow-hidden perspective-[1000px]">
-            {/* Confetti Rain (Hidden initially) */}
-            {isFlipped && (
-                <div className="absolute inset-0 pointer-events-none">
-                    {confetti.map((c, i) => (
+        <div className="relative w-full h-full overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center p-6">
+
+            {/* --- CODE CONFETTI --- */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {CONFETTI.map((char, i) => (
+                    <motion.div
+                        key={i}
+                        initial={{ y: '110vh', x: Math.random() * 100 + 'vw', opacity: 0 }}
+                        animate={{ y: '-10vh', opacity: [0, 0.15, 0] }}
+                        transition={{
+                            duration: 10 + Math.random() * 5,
+                            repeat: Infinity,
+                            delay: Math.random() * 5,
+                            ease: "linear"
+                        }}
+                        className="absolute text-2xl font-mono text-[#1f1f1f]"
+                    >
+                        {char}
+                    </motion.div>
+                ))}
+            </div>
+
+            {/* --- CARD CONTAINER --- */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="relative w-full max-w-md md:max-w-3xl bg-[#1a1a1a] border border-[#3a3a3a] rounded-2xl p-8 md:p-12 shadow-2xl"
+            >
+                {/* Header */}
+                <div className="mb-12 text-center md:text-left">
+                    <h1
+                        className="text-4xl md:text-6xl font-bold text-white mb-2"
+                        style={{ fontFamily: 'var(--font-playfair)' }}
+                    >
+                        Agentsphere Series
+                    </h1>
+                    <p
+                        className="text-lg md:text-2xl text-[#7a7a7a]"
+                        style={{ fontFamily: 'var(--font-inter)' }}
+                    >
+                        Automating Using First Principles
+                    </p>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4">
+                    {STATS.map((stat, i) => (
                         <motion.div
                             key={i}
-                            className="absolute text-neon-yellow"
-                            initial={{ y: -100, x: c.x, rotate: 0 }}
-                            animate={{ y: typeof window !== 'undefined' ? window.innerHeight + 100 : 1000, rotate: 360 }}
-                            transition={{ duration: c.duration, ease: "linear" }}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 + stat.delay, duration: 0.5 }}
+                            className="flex flex-col items-center md:items-start"
                         >
-                            <Zap size={20} fill="currentColor" />
+                            <span
+                                className="text-5xl md:text-6xl font-black text-white mb-2"
+                                style={{ fontFamily: 'var(--font-inter)' }}
+                            >
+                                {stat.value}
+                            </span>
+                            <span className="text-sm md:text-base font-light text-[#5a5a5a] uppercase tracking-wide">
+                                {stat.label}
+                            </span>
                         </motion.div>
                     ))}
                 </div>
-            )}
 
-            {/* 3D Card Container */}
-            <motion.div
-                className="relative w-72 h-96 cursor-pointer preserve-3d"
-                variants={{
-                    drop: { y: [-1000, 0], scale: [0.5, 1] }
-                }}
-                initial={{ y: -1000 }}
-                animate={controls}
-                transition={{ type: "spring", stiffness: 300, damping: 20, mass: 1.5 }} // Heavy thud
-                style={{ transformStyle: "preserve-3d" }}
-            >
-                <motion.div
-                    className="w-full h-full relative transition-all duration-700"
-                    animate={{ rotateY: isFlipped ? 180 : 0 }}
-                    transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                    style={{ transformStyle: "preserve-3d" }}
-                >
-                    {/* Front Face (Vinyl Cover Style) */}
-                    <div className="absolute inset-0 backface-hidden bg-black border border-white/20 rounded-xl overflow-hidden flex flex-col items-center justify-center p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-                        <div className="w-full aspect-square bg-gradient-to-br from-neon-purple to-neon-blue rounded-full animate-spin-slow flex items-center justify-center mb-6">
-                            <div className="w-1/3 h-1/3 bg-black rounded-full" />
-                        </div>
-                        <h2 className="text-2xl font-black text-white text-center leading-tight uppercase">
-                            {slideData?.title}
-                        </h2>
-                        <div className="mt-4 text-gray-400 text-sm tracking-widest uppercase">
-                            Top Workshop
-                        </div>
-
-                        {/* Specular Highlight */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none" />
-                    </div>
-
-                    {/* Back Face (Stats) */}
-                    <div
-                        className="absolute inset-0 backface-hidden bg-white rounded-xl overflow-hidden flex flex-col items-center justify-center p-6 rotate-y-180"
-                        style={{ transform: "rotateY(180deg)" }}
-                    >
-                        <div className="flex flex-col gap-6 w-full">
-                            <div className="flex items-center justify-between border-b border-black/10 pb-4">
-                                <div className="flex items-center gap-2 text-black font-bold">
-                                    <Star className="text-neon-yellow fill-neon-yellow" />
-                                    Rating
-                                </div>
-                                <div className="text-3xl font-black text-black">{slideData?.rating}</div>
-                            </div>
-
-                            <div className="flex items-center justify-between border-b border-black/10 pb-4">
-                                <div className="flex items-center gap-2 text-black font-bold">
-                                    <Camera className="text-black" />
-                                    Photos
-                                </div>
-                                <div className="text-3xl font-black text-black">{slideData?.photos_count}</div>
-                            </div>
-
-                            <div className="text-center mt-2">
-                                <div className="text-xs text-gray-500 uppercase tracking-widest">Location</div>
-                                <div className="text-xl font-black text-black uppercase">{slideData?.city}</div>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
+                {/* Footer / Logos Placeholder */}
+                <div className="mt-12 pt-8 border-t border-[#2a2a2a] flex justify-center md:justify-start gap-4 opacity-30 grayscale">
+                    {/* Placeholders for college logos */}
+                    {[1, 2, 3, 4, 5].map((_, i) => (
+                        <div key={i} className="w-8 h-8 rounded-full bg-[#3a3a3a]" />
+                    ))}
+                </div>
             </motion.div>
+
         </div>
     );
 }

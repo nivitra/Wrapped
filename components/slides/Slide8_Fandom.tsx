@@ -1,93 +1,80 @@
 "use client";
 
-import { motion, useAnimation } from "framer-motion";
-import { useEffect } from "react";
-import { wrappedData } from "@/data/wrappedData";
-import { physics } from "@/utils/physics";
-import { Star } from "lucide-react";
+import { motion } from 'framer-motion';
 
 export default function Slide8_Fandom({ onComplete }: { onComplete: () => void }) {
-    const slideData = wrappedData.slides.find(s => s.id === "engagement")?.data || { avg_rating: "0.0", repeat_invite_percent: 0 };
-    if (!slideData) console.error("Slide 8 data missing");
-    const controls = useAnimation();
-
-    useEffect(() => {
-        const sequence = async () => {
-            // Stars ignite
-            await controls.start("ignite");
-            // Stamp impact
-            await controls.start("stamp");
-            setTimeout(onComplete, 6000);
-        };
-        sequence();
-    }, [controls, onComplete]);
-
     return (
-        <div className="relative w-full h-full flex flex-col items-center justify-center bg-deep-void overflow-hidden">
-            {/* Background Pulse */}
-            <motion.div
-                className="absolute inset-0 bg-neon-yellow/5"
-                animate={{ opacity: [0.5, 0.8, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity }}
-            />
+        <div className="relative w-full h-full overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center p-6">
 
-            {/* Massive Stars */}
-            <div className="flex gap-2 md:gap-4 mb-12 z-10">
-                {Array.from({ length: 5 }).map((_, i) => (
-                    <motion.div
-                        key={i}
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={controls}
-                        variants={{
-                            ignite: {
-                                scale: 1,
-                                opacity: 1,
-                                transition: { delay: i * 0.2, type: "spring", stiffness: 300, damping: 20, mass: 1.5 }
-                            }
-                        }}
-                    >
-                        <Star
-                            size={window.innerWidth < 768 ? 40 : 80}
-                            className="fill-neon-yellow text-neon-yellow drop-shadow-[0_0_20px_rgba(255,255,0,0.8)]"
-                        />
-                    </motion.div>
+            {/* --- STAR RATING --- */}
+            <div className="flex items-center gap-2 mb-16">
+                {[1, 2, 3, 4, 5].map((star, i) => (
+                    <div key={i} className="relative w-8 h-8 md:w-12 md:h-12">
+                        {/* Empty Star Stroke */}
+                        <svg viewBox="0 0 24 24" className="absolute inset-0 w-full h-full text-[#4a7aff] fill-none stroke-current stroke-2">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+
+                        {/* Filled Star Animation */}
+                        <motion.div
+                            initial={{ clipPath: 'inset(100% 0 0 0)' }}
+                            animate={{ clipPath: i === 4 ? 'inset(30% 0 0 0)' : 'inset(0% 0 0 0)' }} // Last star 70% filled
+                            transition={{ delay: i * 0.15, duration: 0.5, type: "spring" }}
+                            className="absolute inset-0 bg-[#4a7aff]"
+                            style={{ clipPath: 'inset(100% 0 0 0)' }} // Initial state
+                        >
+                            <svg viewBox="0 0 24 24" className="w-full h-full text-[#0a0a0a] fill-current">
+                                <rect width="24" height="24" /> {/* Masking trick or just use fill? Better to use SVG fill */}
+                            </svg>
+                            {/* Better approach: Just render filled SVG clipped */}
+                        </motion.div>
+                        {/* Re-doing fill logic for simplicity */}
+                        <motion.svg
+                            viewBox="0 0 24 24"
+                            className="absolute inset-0 w-full h-full text-[#4a7aff] fill-current"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: i * 0.15, type: "spring" }}
+                            style={{
+                                clipPath: i === 4 ? 'inset(0 30% 0 0)' : 'none' // Clip right side for partial fill
+                            }}
+                        >
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </motion.svg>
+                    </div>
                 ))}
+                <motion.span
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1 }}
+                    className="text-2xl md:text-4xl font-medium text-[#4a7aff] ml-4"
+                >
+                    4.7/5
+                </motion.span>
             </div>
 
-            {/* Rating Stamp */}
+            {/* --- INSTITUTIONAL BADGE --- */}
             <motion.div
-                className="z-20 relative"
-                initial={{ scale: 3, opacity: 0, rotate: -15 }}
-                animate={controls}
-                variants={{
-                    stamp: {
-                        scale: 1,
-                        opacity: 1,
-                        rotate: -5,
-                        transition: { delay: 1.5, type: "spring", stiffness: 300, damping: 20, mass: 1.5 }
-                    }
-                }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+                className="w-full max-w-sm bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#3a3a3a] rounded-xl p-8 text-center shadow-2xl"
             >
-                <div className="border-8 border-white p-4 md:p-8 rounded-lg bg-black/50 backdrop-blur-sm transform rotate-[-5deg]">
-                    <h2 className="text-8xl md:text-[10rem] font-black text-white leading-none tracking-tighter">
-                        {slideData?.avg_rating}
-                    </h2>
-                    <p className="text-xl md:text-3xl text-center text-white font-bold uppercase tracking-widest mt-2">
-                        Average Rating
-                    </p>
-                </div>
+                <h1 className="text-8xl md:text-9xl font-black text-white mb-2 leading-none">63%</h1>
+                <p className="text-xl md:text-2xl text-[#b0b0b0] font-normal mb-2">repeat invite rate</p>
+                <p className="text-sm md:text-base text-[#7a7a7a] font-light">
+                    Institutions invited LearnApart back
+                </p>
             </motion.div>
 
-            {/* Repeat Invites */}
-            <motion.div
-                className="absolute bottom-20 flex items-center gap-4"
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 2.5, duration: 0.5 }}
-            >
-                <div className="text-neon-green text-4xl font-black">{slideData?.repeat_invite_percent}%</div>
-                <div className="text-gray-400 text-sm uppercase tracking-widest">Repeat Invites</div>
-            </motion.div>
+            {/* --- HOVER/TAP REVEAL (List) --- */}
+            <div className="mt-8 text-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                <p className="text-[10px] text-[#5a5a5a] max-w-xs mx-auto leading-relaxed">
+                    IIT Madras, BITS Pilani, NIT Warangal, VIT Vellore, SRM,
+                    Amrita, JNTU, Osmania, DTU, IIIT Hyderabad...
+                </p>
+            </div>
+
         </div>
     );
 }
