@@ -1,80 +1,228 @@
 "use client";
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from 'react';
+
+// =============================================================================
+// CONFIGURATION
+// =============================================================================
+
+const QUOTES = [
+    {
+        text: "We did more in 6 hours than we did in the entire last semester.",
+        source: "Student"
+    },
+    {
+        text: "Usually students leave early. Today, they stayed 2 hours late to finish deployment.",
+        source: "Faculty"
+    },
+    {
+        text: "This was the first time I felt like an engineer, not just a student.",
+        source: "Student DM"
+    },
+];
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
 
 export default function Slide8_Fandom({ onComplete }: { onComplete: () => void }) {
+    const [phase, setPhase] = useState(0);
+    const [quoteIdx, setQuoteIdx] = useState(0);
+    const [percent, setPercent] = useState(0);
+
+    // Phase progression
+    useEffect(() => {
+        // Quote 1
+        const t1 = setTimeout(() => setQuoteIdx(1), 2500);
+        // Quote 2
+        const t2 = setTimeout(() => setQuoteIdx(2), 5000);
+        // Switch to stats
+        const t3 = setTimeout(() => setPhase(1), 7500);
+
+        return () => {
+            clearTimeout(t1);
+            clearTimeout(t2);
+            clearTimeout(t3);
+        };
+    }, []);
+
+    // Count animation
+    useEffect(() => {
+        if (phase === 1) {
+            let count = 0;
+            const target = 63;
+            const interval = setInterval(() => {
+                count += 2;
+                if (count >= target) {
+                    setPercent(target);
+                    clearInterval(interval);
+                } else {
+                    setPercent(count);
+                }
+            }, 40);
+
+            return () => clearInterval(interval);
+        }
+    }, [phase]);
+
     return (
-        <div className="relative w-full h-full overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center p-6">
+        <div className="relative w-full h-full overflow-hidden bg-[#050505] flex items-center justify-center">
 
-            {/* --- STAR RATING --- */}
-            <div className="flex items-center gap-2 mb-16">
-                {[1, 2, 3, 4, 5].map((star, i) => (
-                    <div key={i} className="relative w-8 h-8 md:w-12 md:h-12">
-                        {/* Empty Star Stroke */}
-                        <svg viewBox="0 0 24 24" className="absolute inset-0 w-full h-full text-[#4a7aff] fill-none stroke-current stroke-2">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </svg>
-
-                        {/* Filled Star Animation */}
-                        <motion.div
-                            initial={{ clipPath: 'inset(100% 0 0 0)' }}
-                            animate={{ clipPath: i === 4 ? 'inset(30% 0 0 0)' : 'inset(0% 0 0 0)' }} // Last star 70% filled
-                            transition={{ delay: i * 0.15, duration: 0.5, type: "spring" }}
-                            className="absolute inset-0 bg-[#4a7aff]"
-                            style={{ clipPath: 'inset(100% 0 0 0)' }} // Initial state
-                        >
-                            <svg viewBox="0 0 24 24" className="w-full h-full text-[#0a0a0a] fill-current">
-                                <rect width="24" height="24" /> {/* Masking trick or just use fill? Better to use SVG fill */}
-                            </svg>
-                            {/* Better approach: Just render filled SVG clipped */}
-                        </motion.div>
-                        {/* Re-doing fill logic for simplicity */}
-                        <motion.svg
-                            viewBox="0 0 24 24"
-                            className="absolute inset-0 w-full h-full text-[#4a7aff] fill-current"
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: i * 0.15, type: "spring" }}
-                            style={{
-                                clipPath: i === 4 ? 'inset(0 30% 0 0)' : 'none' // Clip right side for partial fill
-                            }}
-                        >
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </motion.svg>
-                    </div>
-                ))}
-                <motion.span
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1 }}
-                    className="text-2xl md:text-4xl font-medium text-[#4a7aff] ml-4"
-                >
-                    4.7/5
-                </motion.span>
-            </div>
-
-            {/* --- INSTITUTIONAL BADGE --- */}
+            {/* Header */}
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="w-full max-w-sm bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#3a3a3a] rounded-xl p-8 text-center shadow-2xl"
+                className="absolute top-6 md:top-12 left-0 right-0 text-center z-40"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
             >
-                <h1 className="text-8xl md:text-9xl font-black text-white mb-2 leading-none">63%</h1>
-                <p className="text-xl md:text-2xl text-[#b0b0b0] font-normal mb-2">repeat invite rate</p>
-                <p className="text-sm md:text-base text-[#7a7a7a] font-light">
-                    Institutions invited LearnApart back
-                </p>
+                <span className="text-[10px] md:text-xs uppercase tracking-[0.4em] text-white/30">
+                    {phase === 0 ? 'Unfiltered Feedback' : 'The Proof'}
+                </span>
             </motion.div>
 
-            {/* --- HOVER/TAP REVEAL (List) --- */}
-            <div className="mt-8 text-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-                <p className="text-[10px] text-[#5a5a5a] max-w-xs mx-auto leading-relaxed">
-                    IIT Madras, BITS Pilani, NIT Warangal, VIT Vellore, SRM,
-                    Amrita, JNTU, Osmania, DTU, IIIT Hyderabad...
-                </p>
-            </div>
+            {/* === QUOTE PHASE === */}
+            {phase === 0 && (
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={quoteIdx}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -30 }}
+                        transition={{ duration: 0.6 }}
+                        className="relative z-30 text-center max-w-3xl px-8"
+                    >
+                        {/* Quote Mark */}
+                        <div className="text-8xl text-white/5 font-serif absolute -top-12 left-1/2 -translate-x-1/2">
+                            "
+                        </div>
 
+                        {/* Quote Text */}
+                        <blockquote
+                            className="text-2xl md:text-5xl text-white font-light leading-snug"
+                            style={{ fontFamily: 'var(--font-playfair)' }}
+                        >
+                            {QUOTES[quoteIdx].text}
+                        </blockquote>
+
+                        {/* Source */}
+                        <div className="mt-8 flex items-center justify-center gap-4">
+                            <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-white/20" />
+                            <span className="text-sm text-[#4a7aff] uppercase tracking-widest font-medium">
+                                {QUOTES[quoteIdx].source}
+                            </span>
+                            <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-white/20" />
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
+            )}
+
+            {/* === STATS PHASE === */}
+            {phase === 1 && (
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6 }}
+                    className="relative z-30 text-center"
+                >
+                    {/* The Big Number */}
+                    <div className="relative">
+                        {/* Glow */}
+                        <div
+                            className="absolute inset-0 blur-3xl opacity-30"
+                            style={{
+                                background: 'radial-gradient(circle, rgba(74,122,255,0.5) 0%, transparent 70%)',
+                                transform: 'scale(1.5)',
+                            }}
+                        />
+
+                        {/* Number */}
+                        <div className="relative flex items-baseline justify-center">
+                            <span
+                                className="text-[10rem] md:text-[18rem] font-black text-white leading-none"
+                                style={{ fontFamily: 'var(--font-inter)' }}
+                            >
+                                {percent}
+                            </span>
+                            <span className="text-5xl md:text-8xl font-bold text-white/40 ml-2">
+                                %
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Label */}
+                    <motion.p
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="text-xl md:text-3xl text-white/50 mt-4"
+                    >
+                        Repeat Invite Rate
+                    </motion.p>
+
+                    {/* Comparison Badge */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1 }}
+                        className="mt-8 inline-flex items-center gap-4 px-6 py-3 rounded-full"
+                        style={{
+                            background: 'rgba(0,255,157,0.1)',
+                            border: '1px solid rgba(0,255,157,0.2)',
+                        }}
+                    >
+                        <span className="text-sm text-white/40">Industry average: 20%</span>
+                        <span className="text-lg font-bold text-[#00ff9d]">3.2x better</span>
+                    </motion.div>
+
+                    {/* Proof Points */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.5 }}
+                        className="mt-10 grid grid-cols-2 gap-6 max-w-md mx-auto"
+                    >
+                        <div className="text-center p-4 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                            <span className="text-2xl font-bold text-white">3</span>
+                            <p className="text-xs text-white/30 mt-1">colleges re-invited before workshop ended</p>
+                        </div>
+                        <div className="text-center p-4 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                            <span className="text-2xl font-bold text-white">&lt;5%</span>
+                            <p className="text-xs text-white/30 mt-1">attrition in 5-hour sessions</p>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
+
+            {/* Quote Progress Dots */}
+            {phase === 0 && (
+                <div className="absolute bottom-8 left-0 right-0 flex items-center justify-center gap-3">
+                    {QUOTES.map((_, i) => (
+                        <div
+                            key={i}
+                            className="w-2 h-2 rounded-full transition-all duration-300"
+                            style={{
+                                background: i === quoteIdx ? '#4a7aff' : 'rgba(255,255,255,0.15)',
+                                transform: i === quoteIdx ? 'scale(1.2)' : 'scale(1)',
+                            }}
+                        />
+                    ))}
+                </div>
+            )}
+
+            {/* Bottom Tagline */}
+            {phase === 1 && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 2 }}
+                    className="absolute bottom-6 md:bottom-10 left-0 right-0 text-center"
+                >
+                    <p className="text-sm text-white/20" style={{ fontFamily: 'var(--font-playfair)' }}>
+                        If 63% are bringing us back, what does that tell you?
+                    </p>
+                </motion.div>
+            )}
         </div>
     );
 }

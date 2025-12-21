@@ -63,14 +63,24 @@ export default function Slide6_Projects({ onComplete }: { onComplete: () => void
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="mt-4 md:mt-8"
+                        className="mt-4 md:mt-8 flex flex-col items-center"
                     >
                         <span
-                            className="text-2xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500"
-                            style={{ fontFamily: 'var(--font-playfair)' }}
+                            className="text-2xl md:text-5xl font-bold text-white uppercase tracking-widest"
+                            style={{
+                                fontFamily: 'var(--font-playfair)',
+                                textShadow: '0 0 40px rgba(255,255,255,0.5), 0 0 80px rgba(255,255,255,0.3)'
+                            }}
                         >
                             Projects Shipped
                         </span>
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: '100%' }}
+                            transition={{ delay: 0.4, duration: 0.8 }}
+                            className="h-[3px] bg-white mt-4 rounded-full"
+                            style={{ boxShadow: '0 0 20px rgba(255,255,255,0.8)' }}
+                        />
                     </motion.div>
 
                     {/* Completion Badge (Re-integrated) */}

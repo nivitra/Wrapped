@@ -3,91 +3,140 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-// --- CONFIGURATION ---
-const STATS = [
-    { value: "5", label: "institutions", delay: 0 },
-    { value: "2,200+", label: "active participants", delay: 0.2 },
-    { value: "3,000+", label: "production agents", delay: 0.4 }
-];
-
-const CONFETTI = ["{ }", "[ ]", "=>", "fn", "&&", "||", "</>", "01"];
-
 export default function Slide5_TopHit({ onComplete }: { onComplete: () => void }) {
-    return (
-        <div className="relative w-full h-full overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center p-6">
+    const [revealed, setRevealed] = useState(false);
 
-            {/* --- CODE CONFETTI --- */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                {CONFETTI.map((char, i) => (
-                    <motion.div
-                        key={i}
-                        initial={{ y: '110vh', x: Math.random() * 100 + 'vw', opacity: 0 }}
-                        animate={{ y: '-10vh', opacity: [0, 0.15, 0] }}
-                        transition={{
-                            duration: 10 + Math.random() * 5,
-                            repeat: Infinity,
-                            delay: Math.random() * 5,
-                            ease: "linear"
-                        }}
-                        className="absolute text-2xl font-mono text-[#1f1f1f]"
-                    >
-                        {char}
-                    </motion.div>
-                ))}
+    useEffect(() => {
+        const timer = setTimeout(() => setRevealed(true), 600);
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+        <div className="relative w-full h-full overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center px-6">
+
+            {/* --- THE CONTENT --- */}
+            <div className="max-w-2xl w-full">
+
+                {/* Series Label */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1 }}
+                    className="mb-8"
+                >
+                    <span className="text-[11px] md:text-xs text-white/30 uppercase tracking-[0.4em]">
+                        Our Flagship
+                    </span>
+                </motion.div>
+
+                {/* Title */}
+                <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="text-5xl md:text-8xl font-black text-white tracking-tight leading-[0.9] mb-6"
+                    style={{ fontFamily: 'var(--font-playfair)' }}
+                >
+                    Agent<br />
+                    <span className="text-white/40">sphere</span>
+                </motion.h1>
+
+                {/* Tagline */}
+                <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.8, delay: 0.5 }}
+                    className="text-base md:text-xl text-white/50 font-light mb-16 max-w-md"
+                    style={{ fontFamily: 'var(--font-inter)' }}
+                >
+                    Teaching builders to automate <em className="text-white/70 not-italic">from first principles</em>—not prompts.
+                </motion.p>
+
+                {/* --- THE NUMBERS --- */}
+                <motion.div
+                    className="space-y-8"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: revealed ? 1 : 0 }}
+                    transition={{ duration: 0.8 }}
+                >
+                    {/* Stat 1 */}
+                    <div className="flex items-baseline gap-4">
+                        <motion.span
+                            className="text-6xl md:text-8xl font-black text-white"
+                            style={{ fontFamily: 'var(--font-inter)' }}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: revealed ? 1 : 0, x: revealed ? 0 : -20 }}
+                            transition={{ duration: 0.6, delay: 0.8 }}
+                        >
+                            5
+                        </motion.span>
+                        <motion.span
+                            className="text-lg md:text-2xl text-white/40 font-light"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: revealed ? 1 : 0 }}
+                            transition={{ duration: 0.6, delay: 1 }}
+                        >
+                            tier-2 colleges. <span className="text-white/60">The real India.</span>
+                        </motion.span>
+                    </div>
+
+                    {/* Stat 2 */}
+                    <div className="flex items-baseline gap-4">
+                        <motion.span
+                            className="text-6xl md:text-8xl font-black text-white"
+                            style={{ fontFamily: 'var(--font-inter)' }}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: revealed ? 1 : 0, x: revealed ? 0 : -20 }}
+                            transition={{ duration: 0.6, delay: 1.1 }}
+                        >
+                            2,200
+                        </motion.span>
+                        <motion.span
+                            className="text-lg md:text-2xl text-white/40 font-light"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: revealed ? 1 : 0 }}
+                            transition={{ duration: 0.6, delay: 1.3 }}
+                        >
+                            builders. <span className="text-white/60">Zero dropouts.</span>
+                        </motion.span>
+                    </div>
+
+                    {/* Stat 3 */}
+                    <div className="flex items-baseline gap-4">
+                        <motion.span
+                            className="text-6xl md:text-8xl font-black text-white"
+                            style={{ fontFamily: 'var(--font-inter)' }}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: revealed ? 1 : 0, x: revealed ? 0 : -20 }}
+                            transition={{ duration: 0.6, delay: 1.4 }}
+                        >
+                            3,000
+                        </motion.span>
+                        <motion.span
+                            className="text-lg md:text-2xl text-white/40 font-light"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: revealed ? 1 : 0 }}
+                            transition={{ duration: 0.6, delay: 1.6 }}
+                        >
+                            agents. <span className="text-white/60">In production.</span>
+                        </motion.span>
+                    </div>
+                </motion.div>
+
             </div>
 
-            {/* --- CARD CONTAINER --- */}
+            {/* --- BOTTOM ACCENT --- */}
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="relative w-full max-w-md md:max-w-3xl bg-[#1a1a1a] border border-[#3a3a3a] rounded-2xl p-8 md:p-12 shadow-2xl"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 2, duration: 1 }}
+                className="absolute bottom-8 md:bottom-12 left-6 md:left-12"
             >
-                {/* Header */}
-                <div className="mb-12 text-center md:text-left">
-                    <h1
-                        className="text-4xl md:text-6xl font-bold text-white mb-2"
-                        style={{ fontFamily: 'var(--font-playfair)' }}
-                    >
-                        Agentsphere Series
-                    </h1>
-                    <p
-                        className="text-lg md:text-2xl text-[#7a7a7a]"
-                        style={{ fontFamily: 'var(--font-inter)' }}
-                    >
-                        Automating Using First Principles
-                    </p>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4">
-                    {STATS.map((stat, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 + stat.delay, duration: 0.5 }}
-                            className="flex flex-col items-center md:items-start"
-                        >
-                            <span
-                                className="text-5xl md:text-6xl font-black text-white mb-2"
-                                style={{ fontFamily: 'var(--font-inter)' }}
-                            >
-                                {stat.value}
-                            </span>
-                            <span className="text-sm md:text-base font-light text-[#5a5a5a] uppercase tracking-wide">
-                                {stat.label}
-                            </span>
-                        </motion.div>
-                    ))}
-                </div>
-
-                {/* Footer / Logos Placeholder */}
-                <div className="mt-12 pt-8 border-t border-[#2a2a2a] flex justify-center md:justify-start gap-4 opacity-30 grayscale">
-                    {/* Placeholders for college logos */}
-                    {[1, 2, 3, 4, 5].map((_, i) => (
-                        <div key={i} className="w-8 h-8 rounded-full bg-[#3a3a3a]" />
-                    ))}
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-[1px] bg-white/20" />
+                    <span className="text-[10px] text-white/20 uppercase tracking-widest">
+                        Series 01
+                    </span>
                 </div>
             </motion.div>
 

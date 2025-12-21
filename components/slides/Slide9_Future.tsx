@@ -1,150 +1,379 @@
 "use client";
 
-import { motion, useSpring, useTransform, useMotionValue, animate } from 'framer-motion';
-import { useEffect, useState, useRef } from 'react';
+import { motion, useAnimationControls } from 'framer-motion';
+import { useEffect, useState } from 'react';
+
+// =============================================================================
+// CONFIGURATION
+// =============================================================================
+
+const CURRENT_METRICS = {
+    builders: 4860,
+    projects: 1340,
+    clubs: 15,
+    cities: 11,
+};
+
+const TARGET_METRICS = {
+    builders: 20000,
+    projects: 5000,
+    clubs: 1000,
+    cities: 40,
+};
+
+const STRATEGIC_PILLARS = [
+    {
+        id: 'verticals',
+        title: 'Building Verticals',
+        description: 'AI Agents, Full Stack, No-Code, Python',
+        icon: '🏗️',
+        status: 'active',
+    },
+    {
+        id: 'community',
+        title: 'Community Leverage',
+        description: 'Student-led growth engine',
+        icon: '👥',
+        status: 'active',
+    },
+    {
+        id: 'clubs',
+        title: '1000+ Club Network',
+        description: 'Campus partnerships at scale',
+        icon: '🎯',
+        status: 'target',
+    },
+];
+
+const TRACTION_SIGNALS = [
+    { label: 'Active Pilots', value: '8+', sublabel: 'Running' },
+    { label: 'Club Inquiries', value: '50+', sublabel: 'Pipeline' },
+    { label: 'Repeat Rate', value: '63%', sublabel: 'Retention' },
+];
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
 
 export default function Slide9_Future({ onComplete }: { onComplete: () => void }) {
-    const [phase, setPhase] = useState<'baseline' | 'ascent' | 'lockin'>('baseline');
-    const count = useMotionValue(4860);
-    const rounded = useTransform(count, (latest) => Math.round(latest).toLocaleString());
+    const [phase, setPhase] = useState<'intro' | 'pillars' | 'product' | 'projection' | 'final'>('intro');
 
     useEffect(() => {
-        // Sequence
         const sequence = async () => {
-            // Phase 1: Baseline (0-1s)
-            await new Promise(r => setTimeout(r, 1000));
-            setPhase('ascent');
-
-            // Phase 2: Ascent (1-3s)
-            const controls = animate(count, 25000, { duration: 2.5, ease: "circIn" });
-            await controls.finished;
-
-            // Phase 3: Lock-in
-            setPhase('lockin');
+            await new Promise(r => setTimeout(r, 500));
+            setPhase('pillars');
+            await new Promise(r => setTimeout(r, 1500));
+            setPhase('product');
+            await new Promise(r => setTimeout(r, 1500));
+            setPhase('projection');
+            await new Promise(r => setTimeout(r, 1500));
+            setPhase('final');
         };
         sequence();
     }, []);
 
     return (
-        <div className="relative w-full h-full overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center">
+        <div className="relative w-full h-full overflow-hidden bg-[#030303] flex flex-col items-center justify-center p-4 md:p-6">
 
-            {/* --- BACKGROUND GRID --- */}
-            <div className="absolute inset-0 opacity-20"
-                style={{
-                    backgroundImage: 'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)',
-                    backgroundSize: '40px 40px'
-                }}
-            />
+            {/* =================================================================== */}
+            {/* BACKGROUND */}
+            {/* =================================================================== */}
+            <BackgroundGrid phase={phase} />
 
-            {/* --- MAIN CONTENT --- */}
-            <div className="relative z-10 w-full max-w-md px-6 flex flex-col h-[80vh]">
+            {/* =================================================================== */}
+            {/* HEADER */}
+            {/* =================================================================== */}
+            <motion.div
+                className="absolute top-4 md:top-8 left-0 right-0 text-center z-40"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+            >
+                <span className="text-[10px] md:text-xs uppercase tracking-[0.4em] text-white/30">
+                    {phase === 'intro' ? 'Loading...' :
+                        phase === 'pillars' ? 'Strategic Pillars' :
+                            phase === 'product' ? 'The Vehicle' :
+                                'Growth Trajectory'}
+                </span>
+            </motion.div>
 
-                {/* Header */}
-                <div className="mb-auto pt-12">
-                    <h2 className="text-sm text-[#7a7a7a] uppercase tracking-widest mb-2">The Mission</h2>
-                    <h1 className="text-4xl font-bold text-white" style={{ fontFamily: 'var(--font-playfair)' }}>
-                        Scale Velocity
-                    </h1>
-                </div>
+            {/* =================================================================== */}
+            {/* MAIN CONTENT AREA */}
+            {/* =================================================================== */}
+            <div className="relative z-30 w-full max-w-2xl">
 
-                {/* GRAPH CONTAINER */}
-                <div className="relative flex-1 flex items-end pb-24">
+                {/* --- STRATEGIC PILLARS --- */}
+                <motion.div
+                    className="mb-8"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: phase !== 'intro' ? 1 : 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <div className="grid grid-cols-3 gap-2 md:gap-4">
+                        {STRATEGIC_PILLARS.map((pillar, i) => (
+                            <motion.div
+                                key={pillar.id}
+                                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                                animate={{
+                                    opacity: phase !== 'intro' ? 1 : 0,
+                                    y: phase !== 'intro' ? 0 : 20,
+                                    scale: phase !== 'intro' ? 1 : 0.9
+                                }}
+                                transition={{ delay: 0.2 + i * 0.15, type: 'spring' }}
+                                className="relative rounded-xl p-3 md:p-4 text-center overflow-hidden"
+                                style={{
+                                    background: 'rgba(255,255,255,0.02)',
+                                    border: pillar.status === 'target'
+                                        ? '1px solid rgba(0,255,157,0.3)'
+                                        : '1px solid rgba(255,255,255,0.06)',
+                                }}
+                            >
+                                {/* Target Glow */}
+                                {pillar.status === 'target' && (
+                                    <motion.div
+                                        className="absolute inset-0 rounded-xl"
+                                        animate={{
+                                            boxShadow: ['0 0 20px rgba(0,255,157,0.1)', '0 0 40px rgba(0,255,157,0.2)', '0 0 20px rgba(0,255,157,0.1)']
+                                        }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                    />
+                                )}
 
-                    {/* The Curve (SVG) */}
-                    <svg className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none">
-                        <defs>
-                            <linearGradient id="lineGradient" x1="0%" y1="100%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="#4a7aff" stopOpacity="0.2" />
-                                <stop offset="100%" stopColor="#00ff9d" stopOpacity="1" />
-                            </linearGradient>
-                            <filter id="glow">
-                                <feGaussianBlur stdDeviation="4" result="coloredBlur" />
-                                <feMerge>
-                                    <feMergeNode in="coloredBlur" />
-                                    <feMergeNode in="SourceGraphic" />
-                                </feMerge>
-                            </filter>
-                        </defs>
+                                <span className="text-2xl md:text-3xl mb-2 block">{pillar.icon}</span>
+                                <h3 className="text-xs md:text-sm font-bold text-white mb-1">{pillar.title}</h3>
+                                <p className="text-[9px] md:text-[10px] text-white/40 leading-tight">{pillar.description}</p>
 
-                        {/* Path: Starts bottom-left, curves exponentially to top-right */}
-                        <motion.path
-                            d="M 0 500 C 100 500, 200 400, 350 0"
-                            fill="none"
-                            stroke="url(#lineGradient)"
-                            strokeWidth="6"
-                            filter="url(#glow)"
-                            initial={{ pathLength: 0 }}
-                            animate={phase !== 'baseline' ? { pathLength: 1 } : { pathLength: 0 }}
-                            transition={{ duration: 2.5, ease: "circIn" }}
+                                {pillar.status === 'active' && (
+                                    <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#00ff9d]" />
+                                )}
+                            </motion.div>
+                        ))}
+                    </div>
+                </motion.div>
+
+                {/* --- PROJECT VISHWAKARMA --- */}
+                <motion.div
+                    className="mb-8"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{
+                        opacity: phase === 'product' || phase === 'projection' || phase === 'final' ? 1 : 0,
+                        scale: phase === 'product' || phase === 'projection' || phase === 'final' ? 1 : 0.95
+                    }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <div
+                        className="relative rounded-2xl p-6 md:p-8 text-center overflow-hidden"
+                        style={{
+                            background: 'linear-gradient(135deg, rgba(74,122,255,0.1) 0%, rgba(0,255,157,0.05) 100%)',
+                            border: '1px solid rgba(74,122,255,0.2)',
+                        }}
+                    >
+                        {/* Glow Effect */}
+                        <motion.div
+                            className="absolute inset-0 rounded-2xl"
+                            animate={{
+                                boxShadow: phase === 'product'
+                                    ? ['0 0 60px rgba(74,122,255,0.2)', '0 0 80px rgba(74,122,255,0.3)', '0 0 60px rgba(74,122,255,0.2)']
+                                    : '0 0 40px rgba(74,122,255,0.1)'
+                            }}
+                            transition={{ duration: 2, repeat: Infinity }}
                         />
-                    </svg>
 
-                    {/* Start Point Label */}
-                    <div className="absolute bottom-0 left-0 transform translate-y-8">
-                        <div className="text-[#4a7aff] font-bold text-lg">4,860</div>
-                        <div className="text-xs text-[#555] uppercase">Students</div>
+                        {/* Label */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.3 }}
+                            className="inline-block px-3 py-1 rounded-full mb-4"
+                            style={{
+                                background: 'rgba(74,122,255,0.2)',
+                                border: '1px solid rgba(74,122,255,0.3)',
+                            }}
+                        >
+                            <span className="text-[10px] text-[#4a7aff] uppercase tracking-wider font-bold">
+                                Single Product Agenda
+                            </span>
+                        </motion.div>
+
+                        {/* Title */}
+                        <h2
+                            className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight"
+                            style={{ fontFamily: 'var(--font-playfair)' }}
+                        >
+                            Project <span className="text-[#4a7aff]">Vishwa</span>karma
+                        </h2>
+
+                        {/* Subtitle */}
+                        <p className="text-sm md:text-base text-white/50">
+                            One platform. Every campus. All builders.
+                        </p>
+
+                        {/* Connecting Lines */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-6 bg-gradient-to-b from-transparent to-white/10" />
+                    </div>
+                </motion.div>
+
+                {/* --- PROJECTION BARS --- */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{
+                        opacity: phase === 'projection' || phase === 'final' ? 1 : 0,
+                        y: phase === 'projection' || phase === 'final' ? 0 : 20
+                    }}
+                    transition={{ duration: 0.6 }}
+                    className="space-y-4"
+                >
+                    {/* Clubs Target - Main Focus */}
+                    <div className="rounded-xl p-4" style={{ background: 'rgba(0,255,157,0.05)', border: '1px solid rgba(0,255,157,0.15)' }}>
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm font-bold text-white">Club Partnerships</span>
+                            <span className="text-xs text-[#00ff9d] font-bold">🎯 PRIMARY TARGET</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="flex-1 h-8 bg-white/5 rounded-lg overflow-hidden relative">
+                                <motion.div
+                                    className="h-full bg-gradient-to-r from-[#4a7aff] to-[#00ff9d] rounded-lg"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: phase === 'projection' || phase === 'final' ? '1.5%' : 0 }}
+                                    transition={{ duration: 1 }}
+                                    style={{ minWidth: '4px' }}
+                                />
+                                <motion.div
+                                    className="absolute top-0 bottom-0 rounded-lg border-2 border-dashed border-[#00ff9d]/50"
+                                    initial={{ width: 0, left: 0 }}
+                                    animate={{
+                                        width: phase === 'final' ? '100%' : 0,
+                                        left: 0
+                                    }}
+                                    transition={{ duration: 1.5, delay: 0.5 }}
+                                    style={{
+                                        background: 'repeating-linear-gradient(90deg, rgba(0,255,157,0.08) 0px, rgba(0,255,157,0.08) 6px, transparent 6px, transparent 12px)'
+                                    }}
+                                />
+                            </div>
+                        </div>
+                        <div className="flex justify-between mt-2">
+                            <span className="text-xs text-white/60">{CURRENT_METRICS.clubs} clubs</span>
+                            <motion.span
+                                className="text-lg font-black text-[#00ff9d]"
+                                initial={{ opacity: 0, scale: 0.5 }}
+                                animate={{
+                                    opacity: phase === 'final' ? 1 : 0,
+                                    scale: phase === 'final' ? 1 : 0.5
+                                }}
+                                transition={{ delay: 1, type: 'spring' }}
+                            >
+                                → {TARGET_METRICS.clubs.toLocaleString()}+ clubs
+                            </motion.span>
+                        </div>
                     </div>
 
-                    {/* End Point Label (The Hero) */}
-                    <motion.div
-                        className="absolute top-0 right-0 text-right"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={phase === 'lockin' ? { opacity: 1, y: 0 } : {}}
-                    >
-                        <motion.div className="text-6xl md:text-7xl font-black text-[#00ff9d] tracking-tighter leading-none">
-                            <MotionText value={rounded} />
-                            <span className="text-4xl align-top">+</span>
-                        </motion.div>
-                        <motion.div
-                            className="text-xl md:text-2xl font-bold text-white uppercase tracking-widest mt-2"
-                            initial={{ color: "#555" }}
-                            animate={{ color: "#fff", textShadow: "0 0 20px rgba(255,255,255,0.5)" }}
-                        >
-                            Builders
-                        </motion.div>
-                    </motion.div>
+                    {/* Other Metrics Grid */}
+                    <div className="grid grid-cols-2 gap-3">
+                        {/* Builders */}
+                        <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                            <span className="text-[10px] text-white/40 uppercase tracking-wider">Builders</span>
+                            <div className="flex items-baseline gap-2 mt-1">
+                                <span className="text-xl font-black text-white">{(CURRENT_METRICS.builders / 1000).toFixed(1)}K</span>
+                                <span className="text-xs text-[#00ff9d]">→ {TARGET_METRICS.builders / 1000}K</span>
+                            </div>
+                        </div>
 
-                </div>
-
-                {/* STRATEGIC LEVERS (Mechanics) */}
-                <div className="mt-auto grid grid-cols-3 gap-2 border-t border-white/10 pt-6">
-                    <Lever label="Campus Nodes" delay={2.5} active={phase === 'lockin'} />
-                    <Lever label="Builder Pass" delay={2.7} active={phase === 'lockin'} />
-                    <Lever label="Corp Partners" delay={2.9} active={phase === 'lockin'} />
-                </div>
-
+                        {/* Projects */}
+                        <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                            <span className="text-[10px] text-white/40 uppercase tracking-wider">Projects</span>
+                            <div className="flex items-baseline gap-2 mt-1">
+                                <span className="text-xl font-black text-white">{(CURRENT_METRICS.projects / 1000).toFixed(1)}K</span>
+                                <span className="text-xs text-[#00ff9d]">→ {TARGET_METRICS.projects / 1000}K</span>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
             </div>
 
+            {/* =================================================================== */}
+            {/* TRACTION SIGNALS - BOTTOM */}
+            {/* =================================================================== */}
+            <motion.div
+                className="absolute bottom-4 md:bottom-8 left-0 right-0 z-40"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{
+                    opacity: phase === 'final' ? 1 : 0,
+                    y: phase === 'final' ? 0 : 20
+                }}
+                transition={{ delay: 0.5 }}
+            >
+                <div className="flex items-center justify-center gap-6 md:gap-10">
+                    {TRACTION_SIGNALS.map((signal, i) => (
+                        <motion.div
+                            key={signal.label}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{
+                                opacity: phase === 'final' ? 1 : 0,
+                                y: phase === 'final' ? 0 : 10
+                            }}
+                            transition={{ delay: 0.7 + i * 0.15 }}
+                            className="text-center"
+                        >
+                            <div className="text-2xl md:text-3xl font-black text-white">{signal.value}</div>
+                            <div className="text-[9px] md:text-[10px] text-white/30 uppercase tracking-wider">
+                                {signal.label}
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+
+                {/* Credibility Line */}
+                <motion.p
+                    className="text-center text-[10px] md:text-xs text-white/20 mt-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: phase === 'final' ? 1 : 0 }}
+                    transition={{ delay: 1.2 }}
+                >
+                    Traction that compounds. Growth that sustains.
+                </motion.p>
+            </motion.div>
         </div>
     );
 }
 
-function Lever({ label, delay, active }: { label: string, delay: number, active: boolean }) {
+// =============================================================================
+// BACKGROUND GRID
+// =============================================================================
+
+function BackgroundGrid({ phase }: { phase: string }) {
     return (
-        <motion.div
-            className={`flex flex-col items-center justify-center p-2 rounded bg-white/5 border ${active ? 'border-[#00ff9d]/50 bg-[#00ff9d]/10' : 'border-white/5'}`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={active ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: delay - 2.5 }} // Adjust relative to phase start
-        >
-            <div className={`w-2 h-2 rounded-full mb-2 ${active ? 'bg-[#00ff9d] shadow-[0_0_10px_#00ff9d]' : 'bg-white/20'}`} />
-            <span className={`text-[10px] uppercase text-center ${active ? 'text-white' : 'text-[#555]'}`}>
-                {label}
-            </span>
-        </motion.div>
+        <>
+            {/* Subtle Grid */}
+            <div
+                className="absolute inset-0 opacity-[0.02]"
+                style={{
+                    backgroundImage: `
+                        linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)
+                    `,
+                    backgroundSize: '40px 40px',
+                }}
+            />
+
+            {/* Center Glow */}
+            <motion.div
+                className="absolute inset-0"
+                animate={{
+                    background: phase === 'product' || phase === 'projection' || phase === 'final'
+                        ? 'radial-gradient(ellipse at 50% 40%, rgba(74,122,255,0.08) 0%, transparent 60%)'
+                        : 'radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.02) 0%, transparent 40%)',
+                }}
+                transition={{ duration: 1 }}
+            />
+
+            {/* Vignette */}
+            <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    background: 'radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,0.5) 100%)',
+                }}
+            />
+        </>
     );
-}
-
-function MotionText({ value }: { value: import('framer-motion').MotionValue<string> }) {
-    const ref = useRef<HTMLSpanElement>(null);
-
-    useEffect(() => {
-        return value.on("change", (latest) => {
-            if (ref.current) {
-                ref.current.textContent = latest;
-            }
-        });
-    }, [value]);
-
-    return <span ref={ref}>{value.get()}</span>;
 }
